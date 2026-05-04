@@ -304,7 +304,17 @@ async function handleAuth(){
     : await sb.auth.signInWithPassword({email,password:pass});
   btn.disabled=false;btn.textContent=isReg?'Đăng ký':'Đăng nhập';
   if(error){showErr(error.message);return;}
-  if(isReg) showOk('✅ Kiểm tra email để xác nhận tài khoản!');
+  if(isReg){
+    showOk('🎉 Đăng ký thành công! Hãy đăng nhập để tiếp tục.');
+    // Auto switch to login tab after 1.5s
+    setTimeout(()=>{
+      setAuthMode('login');
+      document.getElementById('aPass').value='';
+      document.getElementById('aPass2').value='';
+      showOk('👇 Nhập email & mật khẩu để đăng nhập!');
+    },1500);
+    return;
+  }
 }
 
 async function loginGoogle(){
