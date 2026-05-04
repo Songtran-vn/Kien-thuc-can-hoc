@@ -317,11 +317,10 @@ async function logout(){
 }
 
 sb.auth.onAuthStateChange(async(event,session)=>{
-  console.log('AUTH EVENT:', event, session?.user?.email);
   if(session?.user){
     user=session.user;
     document.getElementById('authScreen').style.display='none';
-    document.getElementById('appMain').style.display='';
+    document.getElementById('appMain').style.display='block';
     document.getElementById('userInfo').style.display='flex';
     const em=user.email||'';
     document.getElementById('userEmail').textContent=em;
@@ -335,9 +334,24 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 // ── DB ────────────────────────────────────────
 async function loadTopics(){
   document.getElementById('topicList').innerHTML='<div class="loading"><div class="spinner"></div><p>Đang tải dữ liệu...</p></div>';
-  const{data,error}=await sb.from('topics').select('*,tasks(*)').eq('user_id',user.id).order('created_at');
+  
+  // Add timeout protection
+  const timeout = new Promise((_,reject) => setTimeout(()=>reject(new Error('Timeout sau 10 giây')), 10000));
+  
+  let data, error;
+  try {
+    const result = await Promise.race([
+      sb.from('topics').select('*, tasks(*)').eq('user_id', user.id).order('created_at'),
+      timeout
+    ]);
+    data = result.data;
+    error = result.error;
+  } catch(e) {
+    error = { message: e.message };
+  }
+
   if(error){
-    document.getElementById('topicList').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><p style="color:#EF4444;font-weight:600">Lỗi kết nối database:<br>${error.message}<br><br><small>Mã lỗi: ${error.code||'unknown'}</small></p></div>`;
+    document.getElementById('topicList').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><p style="color:#EF4444;font-weight:600">Lỗi: ${error.message}</p></div>`;
     return;
   }
   topics=(data||[]).map(t=>({...t,tasks:(t.tasks||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))}));
