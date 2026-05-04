@@ -8,139 +8,148 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg:#080B14;--surface:#0E1220;--surface2:#151A2B;
-    --border:#1E2438;--border2:#252D45;
-    --text:#D8DFF0;--text2:#6B7599;--text3:#3D4668;--accent:#4F6EF7;
+    --bg:#F4F6FB;--surface:#FFFFFF;--surface2:#F0F2F8;
+    --border:#E2E6F0;--border2:#D0D6E8;
+    --text:#1A1F36;--text2:#6B7599;--text3:#A0AABF;--accent:#4F6EF7;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
   h1,h2,h3{font-family:'Syne',sans-serif;}
-  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar{width:5px;}
   ::-webkit-scrollbar-track{background:var(--bg);}
-  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
   /* HEADER */
-  .header{position:sticky;top:0;z-index:100;background:rgba(8,11,20,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;}
-  .header-inner{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:14px;height:64px;}
-  .logo{font-family:'Syne';font-size:20px;font-weight:800;letter-spacing:-.5px;}
+  .header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+  .header-inner{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:14px;height:64px;}
+  .logo{font-family:'Syne';font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text);}
   .logo span{color:var(--accent);}
-  .user-info{margin-left:auto;display:flex;align-items:center;gap:10px;}
-  .user-email{font-size:12px;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
-  .btn-logout{padding:6px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans';transition:all .2s;}
-  .btn-logout:hover{border-color:#EF4444;color:#EF4444;}
+  .user-info{margin-left:auto;display:flex;align-items:center;gap:12px;}
+  .user-email{font-size:12px;color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;}
+  .btn-logout{padding:7px 16px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans';transition:all .2s;}
+  .btn-logout:hover{border-color:#EF4444;color:#EF4444;background:#FFF5F5;}
   .prog-wrap{display:flex;align-items:center;gap:8px;}
-  .prog-bar-bg{width:100px;height:5px;background:var(--border2);border-radius:3px;overflow:hidden;}
-  .prog-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4F6EF7,#A78BFA);transition:width .4s;}
-  .prog-label{font-size:12px;color:var(--text2);font-weight:600;min-width:30px;}
+  .prog-bar-bg{width:110px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .prog-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4F6EF7,#7C3AED);transition:width .4s;}
+  .prog-label{font-size:12px;color:var(--text2);font-weight:700;min-width:32px;}
 
   /* AUTH */
-  #authScreen{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:20px;}
-  .auth-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;width:100%;max-width:400px;}
-  .auth-logo{font-family:'Syne';font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;}
+  #authScreen{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#EEF2FF,#F4F6FB);}
+  .auth-box{background:#fff;border:1px solid var(--border);border-radius:24px;padding:40px 36px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(79,110,247,.1);}
+  .auth-logo{font-family:'Syne';font-size:28px;font-weight:800;text-align:center;margin-bottom:6px;color:var(--text);}
   .auth-logo span{color:var(--accent);}
   .auth-sub{text-align:center;font-size:13px;color:var(--text2);margin-bottom:28px;}
-  .auth-tabs{display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px;}
-  .auth-tab{flex:1;padding:9px;border-radius:8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text2);}
-  .auth-tab.active{background:var(--accent);color:#fff;}
-  .inp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;margin-bottom:12px;font-family:'DM Sans';transition:border-color .2s;}
-  .inp:focus{border-color:var(--accent);outline:none;}
+  .auth-tabs{display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:24px;}
+  .auth-tab{flex:1;padding:10px;border-radius:10px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text2);}
+  .auth-tab.active{background:#fff;color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .inp{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;margin-bottom:12px;font-family:'DM Sans';transition:border-color .2s;}
+  .inp:focus{border-color:var(--accent);outline:none;background:#fff;}
   .inp::placeholder{color:var(--text3);}
-  .btn-primary{width:100%;padding:13px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:'Syne';border:none;transition:opacity .2s;margin-top:4px;}
-  .btn-primary:hover{opacity:.85;}
-  .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
-  .auth-msg{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;}
-  .auth-err{background:#2A1218;border:1px solid #EF444455;color:#FCA5A5;}
-  .auth-ok{background:#0D2A1A;border:1px solid #10B98155;color:#6EE7B7;}
+  .btn-primary{width:100%;padding:13px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:'Syne';border:none;transition:all .2s;margin-top:4px;box-shadow:0 4px 16px rgba(79,110,247,.3);}
+  .btn-primary:hover{background:#3B5CE6;box-shadow:0 6px 20px rgba(79,110,247,.4);}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+  .auth-msg{border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;}
+  .auth-err{background:#FFF5F5;border:1px solid #FCA5A5;color:#DC2626;}
+  .auth-ok{background:#F0FDF4;border:1px solid #86EFAC;color:#16A34A;}
   .divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
-  .divider hr{flex:1;border:none;border-top:1px solid var(--border2);}
+  .divider hr{flex:1;border:none;border-top:1px solid var(--border);}
   .divider span{font-size:12px;color:var(--text3);}
-  .btn-google{width:100%;padding:12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .2s;}
-  .btn-google:hover{border-color:var(--accent);}
+  .btn-google{width:100%;padding:12px;border-radius:12px;background:#fff;border:1.5px solid var(--border2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
+  .btn-google:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.08);}
 
   /* MAIN */
-  .main{max-width:780px;margin:0 auto;padding:28px 20px 60px;display:none;}
-  .tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;}
-  .tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s;font-family:'DM Sans';}
-  .tab.active{background:var(--accent);color:#fff;}
-  .tab.inactive{background:var(--surface2);color:var(--text2);border-color:var(--border);}
-  .tab.inactive:hover{border-color:var(--accent);color:var(--text);}
+  .main{max-width:820px;margin:0 auto;padding:28px 20px 60px;display:none;}
+
+  /* STATS BAR */
+  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+  .stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 20px;text-align:center;}
+  .stat-num{font-family:'Syne';font-size:28px;font-weight:800;color:var(--accent);}
+  .stat-lbl{font-size:12px;color:var(--text2);margin-top:2px;}
+
+  /* TABS */
+  .tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+  .tab{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .2s;font-family:'DM Sans';}
+  .tab.active{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(79,110,247,.25);}
+  .tab.inactive{background:#fff;color:var(--text2);border-color:var(--border);}
+  .tab.inactive:hover{border-color:var(--accent);color:var(--accent);}
 
   /* TOPIC CARD */
-  .topic-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;margin-bottom:12px;display:flex;align-items:center;gap:16px;animation:fadeUp .2s ease;}
-  .topic-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
-  .topic-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+  .topic-card{background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:20px;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;margin-bottom:14px;display:flex;align-items:center;gap:16px;animation:fadeUp .2s ease;}
+  .topic-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.1);}
+  .topic-icon{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
   .topic-info{flex:1;min-width:0;}
-  .topic-name{font-family:'Syne';font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  .badge{font-size:11px;padding:2px 8px;border-radius:20px;font-family:'DM Sans';font-weight:600;}
+  .topic-name{font-family:'Syne';font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--text);}
+  .badge{font-size:11px;padding:3px 9px;border-radius:20px;font-family:'DM Sans';font-weight:700;}
   .topic-desc{font-size:12px;color:var(--text2);margin-bottom:10px;}
-  .prog-bar-sm{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;}
-  .prog-fill-sm{height:100%;border-radius:2px;transition:width .4s;}
+  .prog-bar-sm{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+  .prog-fill-sm{height:100%;border-radius:3px;transition:width .4s;}
   .topic-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
-  .topic-pct{font-family:'Syne';font-size:18px;font-weight:800;}
+  .topic-pct{font-family:'Syne';font-size:20px;font-weight:800;}
   .topic-count{font-size:11px;color:var(--text3);}
-  .btn-del{background:none;cursor:pointer;font-size:14px;color:var(--text3);padding:4px;transition:color .2s;border:none;}
+  .btn-del{background:none;cursor:pointer;font-size:15px;color:var(--text3);padding:4px;transition:color .2s;border:none;}
   .btn-del:hover{color:#EF4444;}
 
   /* FORM */
-  .add-btn-dashed{width:100%;padding:16px;border-radius:14px;background:transparent;border:2px dashed var(--border2);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans';transition:border-color .2s,color .2s;}
-  .add-btn-dashed:hover{border-color:var(--accent);color:var(--text);}
-  .form-box{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:20px;margin-top:12px;animation:fadeUp .2s ease;}
-  .form-title{font-family:'Syne';font-size:12px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+  .add-btn-dashed{width:100%;padding:16px;border-radius:14px;background:transparent;border:2px dashed var(--border2);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans';transition:all .2s;}
+  .add-btn-dashed:hover{border-color:var(--accent);color:var(--accent);background:#F0F4FF;}
+  .form-box{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:22px;margin-top:12px;animation:fadeUp .2s ease;box-shadow:0 4px 16px rgba(0,0,0,.06);}
+  .form-title{font-family:'Syne';font-size:12px;font-weight:800;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:1.5px;}
   .emoji-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-  .emoji-chip{padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:18px;cursor:pointer;transition:border-color .2s,background .2s;}
-  .emoji-chip.sel{border-color:var(--accent);background:#4F6EF71A;}
+  .emoji-chip{padding:7px 11px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);font-size:18px;cursor:pointer;transition:all .2s;}
+  .emoji-chip.sel{border-color:var(--accent);background:#EEF2FF;}
   .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-  .color-dot{width:26px;height:26px;border-radius:6px;cursor:pointer;border:3px solid transparent;transition:border-color .2s;}
-  .color-dot.sel{border-color:#fff;}
+  .color-dot{width:28px;height:28px;border-radius:8px;cursor:pointer;border:3px solid transparent;transition:all .2s;}
+  .color-dot.sel{border-color:var(--text);transform:scale(1.15);}
   .btn-row{display:flex;gap:10px;}
-  .btn-act{flex:1;padding:11px;border-radius:8px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:'Syne';border:none;transition:opacity .2s;}
-  .btn-act:hover{opacity:.85;}
-  .btn-act:disabled{opacity:.5;cursor:not-allowed;}
-  .btn-sec{padding:11px 18px;border-radius:8px;background:var(--border2);color:var(--text2);font-weight:600;font-size:14px;cursor:pointer;font-family:'DM Sans';border:none;}
+  .btn-act{flex:1;padding:12px;border-radius:10px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:'Syne';border:none;transition:all .2s;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+  .btn-act:hover{opacity:.88;}
+  .btn-act:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+  .btn-sec{padding:12px 18px;border-radius:10px;background:var(--surface2);color:var(--text2);font-weight:600;font-size:14px;cursor:pointer;font-family:'DM Sans';border:1px solid var(--border);}
   .btn-sec:hover{background:var(--border);}
-  .dur-chips{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
-  .dur-chip{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-family:'DM Sans';transition:all .2s;}
-  .dur-chip.sel{color:#fff;border-color:transparent;}
+  .dur-chips{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .dur-chip{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'DM Sans';transition:all .2s;}
+  .dur-chip.sel{color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.15);}
 
   /* TOPIC HEADER */
-  .topic-hdr{background:var(--surface);border-radius:16px;padding:20px;margin-bottom:18px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);}
-  .hdr-icon{font-size:36px;}
-  .hdr-info h2{font-family:'Syne';font-size:20px;font-weight:800;}
-  .hdr-info p{font-size:12px;color:var(--text2);margin-top:3px;}
+  .topic-hdr{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;display:flex;align-items:center;gap:16px;border:1.5px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);}
+  .hdr-icon{font-size:38px;}
+  .hdr-info h2{font-family:'Syne';font-size:22px;font-weight:800;color:var(--text);}
+  .hdr-info p{font-size:13px;color:var(--text2);margin-top:4px;}
   .hdr-stat{margin-left:auto;text-align:right;flex-shrink:0;}
-  .hdr-pct{font-family:'Syne';font-size:26px;font-weight:800;}
-  .hdr-sub{font-size:11px;color:var(--text2);}
+  .hdr-pct{font-family:'Syne';font-size:28px;font-weight:800;}
+  .hdr-sub{font-size:12px;color:var(--text2);}
 
   /* TASK ROW */
-  .task-row{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:border-color .2s;position:relative;animation:fadeUp .2s ease;}
+  .task-row{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:all .2s;position:relative;animation:fadeUp .2s ease;}
+  .task-row:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,.06);}
   .task-row:hover .task-actions{opacity:1;}
-  .task-row.done{background:#0A0D18;}
-  .checkbox{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;transition:all .2s;}
+  .task-row.done{background:var(--surface2);}
+  .checkbox{width:24px;height:24px;border-radius:7px;border:2px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .2s;}
   .checkbox.checked{border-color:transparent;}
   .task-body{flex:1;min-width:0;}
-  .task-name{font-size:14px;font-weight:600;}
+  .task-name{font-size:14px;font-weight:600;color:var(--text);}
   .task-name.done{color:var(--text3);text-decoration:line-through;}
   .task-note{font-size:12px;color:var(--text2);margin-top:3px;}
   .task-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-  .time-badge{font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 9px;border-radius:20px;}
+  .time-badge{font-size:11px;color:var(--text2);background:var(--surface2);padding:4px 10px;border-radius:20px;font-weight:600;border:1px solid var(--border);}
   .task-actions{opacity:0;display:flex;gap:6px;transition:opacity .2s;}
-  .act-btn{padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;border:none;font-family:'DM Sans';transition:background .2s;}
-  .act-edit{background:var(--border2);color:var(--text2);}
+  .act-btn{padding:5px 11px;border-radius:7px;font-size:12px;cursor:pointer;border:none;font-family:'DM Sans';transition:all .2s;font-weight:600;}
+  .act-edit{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
   .act-edit:hover{background:var(--border);color:var(--text);}
-  .act-del{background:#2A1218;color:#EF4444;}
-  .act-del:hover{background:#3A1A22;}
+  .act-del{background:#FFF5F5;color:#EF4444;border:1px solid #FECACA;}
+  .act-del:hover{background:#FEE2E2;}
 
   /* MISC */
   .loading{text-align:center;padding:60px 0;color:var(--text2);}
-  .spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px;}
-  .empty{text-align:center;padding:50px 0;}
-  .empty-icon{font-size:48px;margin-bottom:14px;}
+  .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px;}
+  .empty{text-align:center;padding:60px 0;}
+  .empty-icon{font-size:52px;margin-bottom:16px;}
   .empty p{color:var(--text2);font-size:14px;}
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E2438;border:1px solid var(--border2);border-radius:10px;padding:10px 20px;font-size:13px;color:var(--text);z-index:999;animation:fadeUp .2s ease;display:none;}
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 22px;font-size:13px;font-weight:600;color:var(--text);z-index:999;animation:fadeUp .2s ease;display:none;box-shadow:0 8px 32px rgba(0,0,0,.12);}
 
   @keyframes spin{to{transform:rotate(360deg);}}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -186,6 +195,10 @@
 
 <!-- MAIN APP -->
 <div class="main" id="appMain">
+
+  <!-- STATS -->
+  <div class="stats-bar" id="statsBar"></div>
+
   <div class="tabs">
     <div class="tab active" id="tabTopics" onclick="switchView('topics')">📋 Chủ Đề</div>
     <div class="tab inactive" id="tabTasks" style="display:none" onclick="switchView('tasks')"></div>
@@ -196,7 +209,7 @@
     <div id="topicList"></div>
     <button class="add-btn-dashed" id="btnShowTopic" onclick="toggleForm('topic',true)">＋ Thêm Chủ Đề Mới</button>
     <div class="form-box" id="formTopic" style="display:none">
-      <div class="form-title">Chủ Đề Mới</div>
+      <div class="form-title">✨ Chủ Đề Mới</div>
       <input class="inp" id="ntTitle" placeholder="Tên chủ đề (VD: Bán Hàng, Marketing...)"/>
       <input class="inp" id="ntDesc"  placeholder="Mô tả ngắn..."/>
       <div class="emoji-row" id="emojiRow"></div>
@@ -214,7 +227,7 @@
     <div id="taskList"></div>
     <button class="add-btn-dashed" id="btnShowTask" onclick="toggleForm('task',true)">＋ Thêm Task Mới</button>
     <div class="form-box" id="formTask" style="display:none">
-      <div class="form-title">Task Mới</div>
+      <div class="form-title">📝 Task Mới</div>
       <input class="inp" id="nkTitle" placeholder="Nội dung cần học..."/>
       <input class="inp" id="nkNote"  placeholder="Ghi chú thêm (tuỳ chọn)..."/>
       <div class="dur-chips" id="durChips"></div>
@@ -229,34 +242,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════
-//  SUPABASE CONFIG
-// ══════════════════════════════════════════════
 const SUPABASE_URL      = 'https://ogbjtjiwbojhlzgrwlvk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_tmrvwE-tmvTtBDJQV0rWIA_5Z70wIo9';
-// ══════════════════════════════════════════════
-//  SQL TẠO BẢNG — chạy trong Supabase SQL Editor:
-//
-//  create table topics (
-//    id uuid primary key default gen_random_uuid(),
-//    user_id uuid references auth.users not null,
-//    title text not null, description text,
-//    emoji text default '💡', color text default '#4F6EF7',
-//    created_at timestamptz default now()
-//  );
-//  create table tasks (
-//    id uuid primary key default gen_random_uuid(),
-//    topic_id uuid references topics on delete cascade not null,
-//    user_id uuid references auth.users not null,
-//    title text not null, note text, duration int default 30,
-//    done boolean default false,
-//    created_at timestamptz default now()
-//  );
-//  alter table topics enable row level security;
-//  alter table tasks  enable row level security;
-//  create policy "own topics" on topics using (auth.uid()=user_id) with check (auth.uid()=user_id);
-//  create policy "own tasks"  on tasks  using (auth.uid()=user_id) with check (auth.uid()=user_id);
-// ══════════════════════════════════════════════
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -268,12 +255,12 @@ let selEmoji=EMOJIS[0], selColor=COLORS[0], selDur=30;
 let editTaskId=null;
 
 // ── TOAST ─────────────────────────────────────
-function toast(msg, ok=true){
+function toast(msg,ok=true){
   const el=document.getElementById('toast');
   el.textContent=msg;el.style.display='block';
-  el.style.borderColor=ok?'#10B98155':'#EF444455';
-  el.style.color=ok?'#6EE7B7':'#FCA5A5';
-  setTimeout(()=>el.style.display='none',2500);
+  el.style.color=ok?'#16A34A':'#DC2626';
+  el.style.borderColor=ok?'#86EFAC':'#FCA5A5';
+  clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2500);
 }
 
 // ── AUTH ──────────────────────────────────────
@@ -299,21 +286,19 @@ async function handleAuth(){
   if(pass.length<6){showErr('Mật khẩu tối thiểu 6 ký tự.');return;}
   const btn=document.getElementById('authBtn');
   btn.disabled=true;btn.textContent='...';
-  const {error}=isReg
+  const{error}=isReg
     ? await sb.auth.signUp({email,password:pass})
     : await sb.auth.signInWithPassword({email,password:pass});
   btn.disabled=false;btn.textContent=isReg?'Đăng ký':'Đăng nhập';
   if(error){showErr(error.message);return;}
   if(isReg){
-    showOk('🎉 Đăng ký thành công! Hãy đăng nhập để tiếp tục.');
-    // Auto switch to login tab after 1.5s
+    showOk('🎉 Đăng ký thành công! Đang chuyển sang đăng nhập...');
     setTimeout(()=>{
       setAuthMode('login');
       document.getElementById('aPass').value='';
       document.getElementById('aPass2').value='';
-      showOk('👇 Nhập email & mật khẩu để đăng nhập!');
+      showOk('👇 Nhập mật khẩu để đăng nhập!');
     },1500);
-    return;
   }
 }
 
@@ -348,17 +333,21 @@ sb.auth.onAuthStateChange(async(_,session)=>{
 
 // ── DB ────────────────────────────────────────
 async function loadTopics(){
-  document.getElementById('topicList').innerHTML='<div class="loading"><div class="spinner"></div><p>Đang tải...</p></div>';
+  document.getElementById('topicList').innerHTML='<div class="loading"><div class="spinner"></div><p>Đang tải dữ liệu...</p></div>';
   const{data,error}=await sb.from('topics').select('*,tasks(*)').eq('user_id',user.id).order('created_at');
-  if(error){ document.getElementById('topicList').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><p>Lỗi: ${error.message}<br><small>Hãy chạy SQL tạo bảng trong Supabase!</small></p></div>`; return; }
+  if(error){
+    document.getElementById('topicList').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><p style="color:#EF4444">Lỗi: ${error.message}</p></div>`;
+    return;
+  }
   topics=(data||[]).map(t=>({...t,tasks:(t.tasks||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))}));
   activeId=activeId||topics[0]?.id||null;
 }
+
 async function dbInsertTopic(o){
   const{data,error}=await sb.from('topics').insert({user_id:user.id,...o}).select().single();
   if(error){toast('Lỗi: '+error.message,false);return null;}return data;
 }
-async function dbDeleteTopic(id){await sb.from('topics').delete().eq('id',id).eq('user_id',user.id);}
+async function dbDelete_topic(id){await sb.from('topics').delete().eq('id',id).eq('user_id',user.id);}
 async function dbInsertTask(o,topicId){
   const{data,error}=await sb.from('tasks').insert({user_id:user.id,topic_id:topicId,...o,done:false}).select().single();
   if(error){toast('Lỗi: '+error.message,false);return null;}return data;
@@ -373,7 +362,20 @@ const tDone=t=>(t.tasks||[]).filter(k=>k.done).length;
 const tPct =t=>t.tasks?.length?Math.round(tDone(t)/t.tasks.length*100):0;
 const gPct =()=>{const tot=topics.reduce((s,t)=>s+(t.tasks?.length||0),0),done=topics.reduce((s,t)=>s+tDone(t),0);return tot?Math.round(done/tot*100):0;};
 const activeTopic=()=>topics.find(t=>t.id===activeId);
-function updProg(){const p=gPct();document.getElementById('gProgBar').style.width=p+'%';document.getElementById('gProgLabel').textContent=p+'%';}
+
+function updProg(){
+  const p=gPct();
+  document.getElementById('gProgBar').style.width=p+'%';
+  document.getElementById('gProgLabel').textContent=p+'%';
+  // Stats bar
+  const tot=topics.reduce((s,t)=>s+(t.tasks?.length||0),0);
+  const done=topics.reduce((s,t)=>s+tDone(t),0);
+  document.getElementById('statsBar').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${topics.length}</div><div class="stat-lbl">Chủ đề</div></div>
+    <div class="stat-card"><div class="stat-num">${tot}</div><div class="stat-lbl">Tổng tasks</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:${p===100?'#10B981':'var(--accent)'}">${p}%</div><div class="stat-lbl">Hoàn thành</div></div>
+  `;
+}
 
 // ── VIEWS ─────────────────────────────────────
 function switchView(v){
@@ -387,37 +389,38 @@ function openTopic(id){
   activeId=id;const t=activeTopic();
   const tab=document.getElementById('tabTasks');
   tab.style.display='';tab.textContent=t.emoji+' '+t.title;
-  tab.style.background=t.color;tab.style.color='#fff';
+  tab.style.background=t.color;tab.style.borderColor=t.color;tab.style.color='#fff';
   switchView('tasks');
 }
 
 // ── RENDER TOPICS ─────────────────────────────
 function renderTopics(){
   const list=document.getElementById('topicList');list.innerHTML='';
+  updProg();
   if(!topics.length){
-    list.innerHTML='<div class="empty"><div class="empty-icon">🎯</div><p>Tạo chủ đề đầu tiên để bắt đầu!</p></div>';
-    updProg();return;
+    list.innerHTML='<div class="empty"><div class="empty-icon">🎯</div><p>Tạo chủ đề đầu tiên để bắt đầu học!</p></div>';
+    return;
   }
   topics.forEach(t=>{
     const pct=tPct(t),div=document.createElement('div');
     div.className='topic-card';
-    div.style.borderColor=activeId===t.id?t.color+'88':'';
+    div.style.borderColor=activeId===t.id?t.color:'';
+    div.style.boxShadow=activeId===t.id?`0 4px 20px ${h2r(t.color,.15)}`:'';
     div.innerHTML=`
       <div class="topic-icon" style="background:${h2r(t.color,.12)}">${t.emoji}</div>
       <div class="topic-info">
-        <div class="topic-name">${esc(t.title)}<span class="badge" style="color:${t.color};background:${h2r(t.color,.15)}">${tDone(t)}/${t.tasks?.length||0}</span></div>
+        <div class="topic-name">${esc(t.title)}<span class="badge" style="color:${t.color};background:${h2r(t.color,.12)}">${tDone(t)}/${t.tasks?.length||0}</span></div>
         <div class="topic-desc">${esc(t.description||'Chưa có mô tả')}</div>
         <div class="prog-bar-sm"><div class="prog-fill-sm" style="width:${pct}%;background:${t.color}"></div></div>
       </div>
       <div class="topic-meta">
         <div class="topic-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div>
-        <div class="topic-count">${t.tasks?.length||0} tasks</div>
+        <div class="topic-count">${t.tasks?.length||0} tasks · ${(t.tasks?.length||0)*30}p</div>
         <button class="btn-del" onclick="event.stopPropagation();deleteTopic('${t.id}')">🗑</button>
       </div>`;
     div.addEventListener('click',()=>openTopic(t.id));
     list.appendChild(div);
   });
-  updProg();
 }
 
 // ── RENDER TASKS ──────────────────────────────
@@ -427,13 +430,15 @@ function renderTasks(){
   document.getElementById('topicHeader').innerHTML=`
     <div class="hdr-icon">${t.emoji}</div>
     <div class="hdr-info"><h2>${esc(t.title)}</h2><p>${esc(t.description||'')}</p></div>
-    <div class="hdr-stat"><div class="hdr-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div><div class="hdr-sub">${tDone(t)}/${t.tasks?.length||0} xong</div></div>`;
-  document.getElementById('btnShowTask').style.borderColor=t.color+'55';
+    <div class="hdr-stat"><div class="hdr-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div><div class="hdr-sub">${tDone(t)}/${t.tasks?.length||0} hoàn thành</div></div>`;
+  document.getElementById('topicHeader').style.borderColor=t.color+'55';
+  document.getElementById('btnShowTask').style.borderColor=t.color+'88';
   document.getElementById('btnAddTask').style.background=t.color;
   const list=document.getElementById('taskList');list.innerHTML='';
+  updProg();
   if(!t.tasks?.length){
-    list.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>Chưa có task nào!</p></div>';
-    updProg();return;
+    list.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>Chưa có task nào. Thêm task đầu tiên!</p></div>';
+    return;
   }
   t.tasks.forEach(tk=>{
     const row=document.createElement('div');
@@ -443,7 +448,7 @@ function renderTasks(){
         <input class="inp" id="et_t" value="${esc(tk.title)}" style="margin-bottom:8px"/>
         <input class="inp" id="et_n" value="${esc(tk.note||'')}" placeholder="Ghi chú..." style="margin-bottom:10px"/>
         <div class="btn-row">
-          <button class="btn-act" style="background:${t.color}" onclick="saveEdit('${t.id}','${tk.id}')">Lưu</button>
+          <button class="btn-act" style="background:${t.color}" onclick="saveEdit('${t.id}','${tk.id}')">💾 Lưu</button>
           <button class="btn-sec" onclick="cancelEdit()">Huỷ</button>
         </div></div>`;
     }else{
@@ -451,19 +456,18 @@ function renderTasks(){
         <div class="checkbox ${tk.done?'checked':''}" style="${tk.done?'background:'+t.color+';border-color:'+t.color:''}" onclick="toggleTask('${t.id}','${tk.id}',${!tk.done})">${tk.done?'✓':''}</div>
         <div class="task-body">
           <div class="task-name ${tk.done?'done':''}">${esc(tk.title)}</div>
-          ${tk.note?`<div class="task-note">${esc(tk.note)}</div>`:''}
+          ${tk.note?`<div class="task-note">💬 ${esc(tk.note)}</div>`:''}
         </div>
         <div class="task-right">
           <div class="time-badge">⏱ ${tk.duration}p</div>
           <div class="task-actions">
-            <button class="act-btn act-edit" onclick="startEdit('${tk.id}')">✏️</button>
+            <button class="act-btn act-edit" onclick="startEdit('${tk.id}')">✏️ Sửa</button>
             <button class="act-btn act-del"  onclick="deleteTask('${t.id}','${tk.id}')">🗑</button>
           </div>
         </div>`;
     }
     list.appendChild(row);
   });
-  updProg();
 }
 
 // ── TOPIC CRUD ────────────────────────────────
@@ -484,7 +488,7 @@ async function addTopic(){
   saved.tasks=[];topics.push(saved);
   document.getElementById('ntTitle').value='';document.getElementById('ntDesc').value='';
   toggleForm('topic',false);activeId=saved.id;renderTopics();openTopic(saved.id);
-  toast('✅ Đã tạo chủ đề!');
+  toast('✅ Đã tạo chủ đề: '+title);
 }
 async function deleteTopic(id){
   if(!confirm('Xoá chủ đề và tất cả task bên trong?'))return;
@@ -492,7 +496,7 @@ async function deleteTopic(id){
   if(activeId===id)activeId=topics[0]?.id||null;
   document.getElementById('tabTasks').style.display='none';
   switchView('topics');
-  await dbDelete('topics',id);
+  await dbDelete_topic(id);
   toast('🗑 Đã xoá chủ đề');
 }
 
@@ -512,9 +516,8 @@ async function addTask(){
 }
 async function toggleTask(topicId,taskId,done){
   topics=topics.map(t=>t.id===topicId?{...t,tasks:t.tasks.map(k=>k.id===taskId?{...k,done}:k)}:t);
-  renderTasks();
-  await dbUpdate('tasks',taskId,{done});
-  if(done) toast('✅ Hoàn thành task!');
+  renderTasks();await dbUpdate('tasks',taskId,{done});
+  if(done)toast('🎉 Hoàn thành task!');
 }
 async function deleteTask(topicId,taskId){
   topics=topics.map(t=>t.id===topicId?{...t,tasks:t.tasks.filter(k=>k.id!==taskId)}:t);
@@ -527,8 +530,7 @@ async function saveEdit(topicId,taskId){
   const note =document.getElementById('et_n')?.value.trim();
   if(!title)return;
   topics=topics.map(t=>t.id===topicId?{...t,tasks:t.tasks.map(k=>k.id===taskId?{...k,title,note}:k)}:t);
-  editTaskId=null;renderTasks();
-  await dbUpdate('tasks',taskId,{title,note});toast('✅ Đã lưu!');
+  editTaskId=null;renderTasks();await dbUpdate('tasks',taskId,{title,note});toast('✅ Đã lưu!');
 }
 
 // ── PICKERS ───────────────────────────────────
