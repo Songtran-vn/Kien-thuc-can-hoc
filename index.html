@@ -5,203 +5,142 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Learning Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg: #080B14;
-    --surface: #0E1220;
-    --surface2: #151A2B;
-    --border: #1E2438;
-    --border2: #252D45;
-    --text: #D8DFF0;
-    --text2: #6B7599;
-    --text3: #3D4668;
-    --accent: #4F6EF7;
+    --bg:#080B14;--surface:#0E1220;--surface2:#151A2B;
+    --border:#1E2438;--border2:#252D45;
+    --text:#D8DFF0;--text2:#6B7599;--text3:#3D4668;--accent:#4F6EF7;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  h1,h2,h3 { font-family: 'Syne', sans-serif; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  h1,h2,h3{font-family:'Syne',sans-serif;}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  /* HEADER */
+  .header{position:sticky;top:0;z-index:100;background:rgba(8,11,20,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;}
+  .header-inner{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:14px;height:64px;}
+  .logo{font-family:'Syne';font-size:20px;font-weight:800;letter-spacing:-.5px;}
+  .logo span{color:var(--accent);}
+  .user-info{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .user-email{font-size:12px;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+  .btn-logout{padding:6px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans';transition:all .2s;}
+  .btn-logout:hover{border-color:#EF4444;color:#EF4444;}
+  .prog-wrap{display:flex;align-items:center;gap:8px;}
+  .prog-bar-bg{width:100px;height:5px;background:var(--border2);border-radius:3px;overflow:hidden;}
+  .prog-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4F6EF7,#A78BFA);transition:width .4s;}
+  .prog-label{font-size:12px;color:var(--text2);font-weight:600;min-width:30px;}
 
-  /* ── HEADER ── */
-  .header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(8,11,20,0.92);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-  }
-  .header-inner {
-    max-width: 780px; margin: 0 auto;
-    display: flex; align-items: center; gap: 16px;
-    height: 64px;
-  }
-  .logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent); }
-  .global-prog {
-    margin-left: auto; display: flex; align-items: center; gap: 10px;
-  }
-  .prog-bar-wrap { width: 120px; height: 5px; background: var(--border2); border-radius: 3px; overflow: hidden; }
-  .prog-bar-fill { height: 100%; border-radius: 3px; transition: width .4s ease; background: linear-gradient(90deg,#4F6EF7,#A78BFA); }
-  .prog-label { font-size: 12px; color: var(--text2); font-weight: 600; }
+  /* AUTH */
+  #authScreen{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .auth-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;width:100%;max-width:400px;}
+  .auth-logo{font-family:'Syne';font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;}
+  .auth-logo span{color:var(--accent);}
+  .auth-sub{text-align:center;font-size:13px;color:var(--text2);margin-bottom:28px;}
+  .auth-tabs{display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px;}
+  .auth-tab{flex:1;padding:9px;border-radius:8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text2);}
+  .auth-tab.active{background:var(--accent);color:#fff;}
+  .inp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;margin-bottom:12px;font-family:'DM Sans';transition:border-color .2s;}
+  .inp:focus{border-color:var(--accent);outline:none;}
+  .inp::placeholder{color:var(--text3);}
+  .btn-primary{width:100%;padding:13px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:'Syne';border:none;transition:opacity .2s;margin-top:4px;}
+  .btn-primary:hover{opacity:.85;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+  .auth-msg{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;}
+  .auth-err{background:#2A1218;border:1px solid #EF444455;color:#FCA5A5;}
+  .auth-ok{background:#0D2A1A;border:1px solid #10B98155;color:#6EE7B7;}
+  .divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+  .divider hr{flex:1;border:none;border-top:1px solid var(--border2);}
+  .divider span{font-size:12px;color:var(--text3);}
+  .btn-google{width:100%;padding:12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .2s;}
+  .btn-google:hover{border-color:var(--accent);}
 
-  /* ── MAIN ── */
-  .main { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
+  /* MAIN */
+  .main{max-width:780px;margin:0 auto;padding:28px 20px 60px;display:none;}
+  .tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;}
+  .tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s;font-family:'DM Sans';}
+  .tab.active{background:var(--accent);color:#fff;}
+  .tab.inactive{background:var(--surface2);color:var(--text2);border-color:var(--border);}
+  .tab.inactive:hover{border-color:var(--accent);color:var(--text);}
 
-  /* ── TABS ── */
-  .tabs { display: flex; gap: 6px; margin-bottom: 24px; }
-  .tab {
-    padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
-    cursor: pointer; border: 1px solid transparent; transition: all .2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tab.active { background: var(--accent); color: #fff; }
-  .tab.inactive { background: var(--surface2); color: var(--text2); border-color: var(--border); }
-  .tab.inactive:hover { border-color: var(--accent); color: var(--text); }
+  /* TOPIC CARD */
+  .topic-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;margin-bottom:12px;display:flex;align-items:center;gap:16px;animation:fadeUp .2s ease;}
+  .topic-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
+  .topic-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+  .topic-info{flex:1;min-width:0;}
+  .topic-name{font-family:'Syne';font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .badge{font-size:11px;padding:2px 8px;border-radius:20px;font-family:'DM Sans';font-weight:600;}
+  .topic-desc{font-size:12px;color:var(--text2);margin-bottom:10px;}
+  .prog-bar-sm{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;}
+  .prog-fill-sm{height:100%;border-radius:2px;transition:width .4s;}
+  .topic-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+  .topic-pct{font-family:'Syne';font-size:18px;font-weight:800;}
+  .topic-count{font-size:11px;color:var(--text3);}
+  .btn-del{background:none;cursor:pointer;font-size:14px;color:var(--text3);padding:4px;transition:color .2s;border:none;}
+  .btn-del:hover{color:#EF4444;}
 
-  /* ── TOPIC CARD ── */
-  .topic-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 20px; cursor: pointer;
-    transition: transform .2s, border-color .2s, box-shadow .2s;
-    margin-bottom: 12px; display: flex; align-items: center; gap: 16px;
-    position: relative; overflow: hidden;
-  }
-  .topic-card::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-    border-radius: 2px 0 0 2px;
-  }
-  .topic-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
-  .topic-icon {
-    width: 52px; height: 52px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px; flex-shrink: 0;
-  }
-  .topic-info { flex: 1; min-width: 0; }
-  .topic-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
-  .topic-desc { font-size: 12px; color: var(--text2); margin-bottom: 10px; }
-  .topic-prog-bar { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
-  .topic-prog-fill { height: 100%; border-radius: 2px; transition: width .4s; }
-  .topic-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-  .topic-pct { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
-  .topic-count { font-size: 11px; color: var(--text3); }
-  .btn-del { background: none; cursor: pointer; font-size: 14px; color: var(--text3); padding: 4px; transition: color .2s; }
-  .btn-del:hover { color: #EF4444; }
+  /* FORM */
+  .add-btn-dashed{width:100%;padding:16px;border-radius:14px;background:transparent;border:2px dashed var(--border2);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans';transition:border-color .2s,color .2s;}
+  .add-btn-dashed:hover{border-color:var(--accent);color:var(--text);}
+  .form-box{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:20px;margin-top:12px;animation:fadeUp .2s ease;}
+  .form-title{font-family:'Syne';font-size:12px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+  .emoji-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .emoji-chip{padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:18px;cursor:pointer;transition:border-color .2s,background .2s;}
+  .emoji-chip.sel{border-color:var(--accent);background:#4F6EF71A;}
+  .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .color-dot{width:26px;height:26px;border-radius:6px;cursor:pointer;border:3px solid transparent;transition:border-color .2s;}
+  .color-dot.sel{border-color:#fff;}
+  .btn-row{display:flex;gap:10px;}
+  .btn-act{flex:1;padding:11px;border-radius:8px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:'Syne';border:none;transition:opacity .2s;}
+  .btn-act:hover{opacity:.85;}
+  .btn-act:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-sec{padding:11px 18px;border-radius:8px;background:var(--border2);color:var(--text2);font-weight:600;font-size:14px;cursor:pointer;font-family:'DM Sans';border:none;}
+  .btn-sec:hover{background:var(--border);}
+  .dur-chips{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .dur-chip{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-family:'DM Sans';transition:all .2s;}
+  .dur-chip.sel{color:#fff;border-color:transparent;}
 
-  /* ── ADD TOPIC FORM ── */
-  .add-btn-dashed {
-    width: 100%; padding: 16px; border-radius: 14px;
-    background: transparent; border: 2px dashed var(--border2);
-    color: var(--text2); font-size: 14px; font-weight: 600;
-    cursor: pointer; font-family: 'DM Sans', sans-serif;
-    transition: border-color .2s, color .2s;
-  }
-  .add-btn-dashed:hover { border-color: var(--accent); color: var(--text); }
-  .form-box {
-    background: var(--surface2); border: 1px solid var(--border2);
-    border-radius: 14px; padding: 20px; margin-top: 12px;
-    animation: fadeUp .2s ease;
-  }
-  .form-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
-  .inp {
-    width: 100%; background: var(--bg); border: 1px solid var(--border2);
-    border-radius: 8px; padding: 10px 14px; color: var(--text);
-    font-size: 14px; margin-bottom: 10px; font-family: 'DM Sans', sans-serif;
-    transition: border-color .2s;
-  }
-  .inp:focus { border-color: var(--accent); outline: none; }
-  .inp::placeholder { color: var(--text3); }
-  .emoji-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .emoji-chip {
-    padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--bg); font-size: 18px; cursor: pointer; transition: border-color .2s, background .2s;
-  }
-  .emoji-chip.sel { border-color: var(--accent); background: #4F6EF71A; }
-  .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .color-dot {
-    width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
-    border: 3px solid transparent; transition: border-color .2s;
-  }
-  .color-dot.sel { border-color: #fff; }
-  .btn-row { display: flex; gap: 10px; }
-  .btn-primary {
-    flex: 1; padding: 11px; border-radius: 8px; background: var(--accent);
-    color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
-    font-family: 'Syne', sans-serif; border: none; transition: opacity .2s;
-  }
-  .btn-primary:hover { opacity: 0.85; }
-  .btn-sec {
-    padding: 11px 18px; border-radius: 8px; background: var(--border2);
-    color: var(--text2); font-weight: 600; font-size: 14px; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; border: none; transition: background .2s;
-  }
-  .btn-sec:hover { background: var(--border); }
+  /* TOPIC HEADER */
+  .topic-hdr{background:var(--surface);border-radius:16px;padding:20px;margin-bottom:18px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);}
+  .hdr-icon{font-size:36px;}
+  .hdr-info h2{font-family:'Syne';font-size:20px;font-weight:800;}
+  .hdr-info p{font-size:12px;color:var(--text2);margin-top:3px;}
+  .hdr-stat{margin-left:auto;text-align:right;flex-shrink:0;}
+  .hdr-pct{font-family:'Syne';font-size:26px;font-weight:800;}
+  .hdr-sub{font-size:11px;color:var(--text2);}
 
-  /* ── TOPIC HEADER ── */
-  .topic-header {
-    background: var(--surface); border-radius: 16px; padding: 20px;
-    margin-bottom: 18px; display: flex; align-items: center; gap: 14px;
-    border: 1px solid var(--border);
-  }
-  .topic-header-icon { font-size: 36px; }
-  .topic-header-info h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
-  .topic-header-info p { font-size: 12px; color: var(--text2); margin-top: 3px; }
-  .topic-header-stat { margin-left: auto; text-align: right; }
-  .stat-pct { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; }
-  .stat-sub { font-size: 11px; color: var(--text2); }
+  /* TASK ROW */
+  .task-row{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:border-color .2s;position:relative;animation:fadeUp .2s ease;}
+  .task-row:hover .task-actions{opacity:1;}
+  .task-row.done{background:#0A0D18;}
+  .checkbox{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;transition:all .2s;}
+  .checkbox.checked{border-color:transparent;}
+  .task-body{flex:1;min-width:0;}
+  .task-name{font-size:14px;font-weight:600;}
+  .task-name.done{color:var(--text3);text-decoration:line-through;}
+  .task-note{font-size:12px;color:var(--text2);margin-top:3px;}
+  .task-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .time-badge{font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 9px;border-radius:20px;}
+  .task-actions{opacity:0;display:flex;gap:6px;transition:opacity .2s;}
+  .act-btn{padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;border:none;font-family:'DM Sans';transition:background .2s;}
+  .act-edit{background:var(--border2);color:var(--text2);}
+  .act-edit:hover{background:var(--border);color:var(--text);}
+  .act-del{background:#2A1218;color:#EF4444;}
+  .act-del:hover{background:#3A1A22;}
 
-  /* ── TASK ROW ── */
-  .task-row {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px 16px; margin-bottom: 8px;
-    display: flex; align-items: center; gap: 14px;
-    transition: border-color .2s, background .2s;
-    position: relative; animation: fadeUp .2s ease;
-  }
-  .task-row:hover .task-actions { opacity: 1; }
-  .task-row.done { background: #0A0D18; }
-  .checkbox {
-    width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border2);
-    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 12px; color: #fff; transition: all .2s;
-  }
-  .checkbox.checked { color: #fff; border-color: transparent; }
-  .task-info { flex: 1; min-width: 0; }
-  .task-name { font-size: 14px; font-weight: 600; transition: color .2s; }
-  .task-name.done { color: var(--text3); text-decoration: line-through; }
-  .task-note { font-size: 12px; color: var(--text2); margin-top: 3px; }
-  .task-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .time-badge { font-size: 11px; color: var(--text3); background: var(--surface2); padding: 3px 9px; border-radius: 20px; }
-  .task-actions { opacity: 0; display: flex; gap: 6px; transition: opacity .2s; }
-  .act-btn {
-    padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;
-    border: none; font-family: 'DM Sans', sans-serif; transition: background .2s;
-  }
-  .act-edit { background: var(--border2); color: var(--text2); }
-  .act-edit:hover { background: var(--border); color: var(--text); }
-  .act-del { background: #2A1218; color: #EF4444; }
-  .act-del:hover { background: #3A1A22; }
+  /* MISC */
+  .loading{text-align:center;padding:60px 0;color:var(--text2);}
+  .spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px;}
+  .empty{text-align:center;padding:50px 0;}
+  .empty-icon{font-size:48px;margin-bottom:14px;}
+  .empty p{color:var(--text2);font-size:14px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E2438;border:1px solid var(--border2);border-radius:10px;padding:10px 20px;font-size:13px;color:var(--text);z-index:999;animation:fadeUp .2s ease;display:none;}
 
-  /* ── TASK FORM ── */
-  .duration-chips { display: flex; gap: 6px; margin-bottom: 14px; }
-  .dur-chip {
-    padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
-    cursor: pointer; border: 1px solid var(--border2); background: var(--bg);
-    color: var(--text2); font-family: 'DM Sans', sans-serif; transition: all .2s;
-  }
-  .dur-chip.sel { color: #fff; border-color: transparent; }
-
-  /* ── EMPTY STATE ── */
-  .empty { text-align: center; padding: 50px 0; }
-  .empty-icon { font-size: 48px; margin-bottom: 14px; }
-  .empty p { color: var(--text2); font-size: 14px; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -210,19 +149,44 @@
 <div class="header">
   <div class="header-inner">
     <div class="logo">Learning<span>Hub</span></div>
-    <div class="global-prog">
-      <div class="prog-bar-wrap">
-        <div class="prog-bar-fill" id="globalProgBar" style="width:0%"></div>
+    <div class="user-info" id="userInfo" style="display:none">
+      <div class="prog-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar-fill" id="gProgBar" style="width:0%"></div></div>
+        <div class="prog-label" id="gProgLabel">0%</div>
       </div>
-      <div class="prog-label" id="globalProgLabel">0%</div>
+      <div class="avatar" id="userAvatar">?</div>
+      <div class="user-email" id="userEmail"></div>
+      <button class="btn-logout" onclick="logout()">Đăng xuất</button>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
-  <!-- TABS -->
-  <div class="tabs" id="tabs">
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">Learning<span>Hub</span></div>
+    <div class="auth-sub">Quản lý hành trình học tập của bạn</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="setAuthMode('login')">Đăng nhập</div>
+      <div class="auth-tab" id="tabReg" onclick="setAuthMode('register')">Đăng ký</div>
+    </div>
+    <div class="auth-msg auth-err" id="authErr"></div>
+    <div class="auth-msg auth-ok"  id="authOk"></div>
+    <input class="inp" id="aEmail" type="email"    placeholder="Email của bạn..."/>
+    <input class="inp" id="aPass"  type="password" placeholder="Mật khẩu (tối thiểu 6 ký tự)..."/>
+    <input class="inp" id="aPass2" type="password" placeholder="Nhập lại mật khẩu..." style="display:none"/>
+    <button class="btn-primary" id="authBtn" onclick="handleAuth()">Đăng nhập</button>
+    <div class="divider"><hr><span>hoặc</span><hr></div>
+    <button class="btn-google" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.5 29.3 4 24 4c-7.7 0-14.4 4.4-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.3 0-9.6-2.9-11.3-7.1l-6.6 5.1C9.7 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.4 4.2-4.4 5.5l6.2 5.2C41 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+      Tiếp tục với Google
+    </button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="main" id="appMain">
+  <div class="tabs">
     <div class="tab active" id="tabTopics" onclick="switchView('topics')">📋 Chủ Đề</div>
     <div class="tab inactive" id="tabTasks" style="display:none" onclick="switchView('tasks')"></div>
   </div>
@@ -230,342 +194,362 @@
   <!-- TOPICS VIEW -->
   <div id="viewTopics">
     <div id="topicList"></div>
-    <button class="add-btn-dashed" id="btnShowAddTopic" onclick="toggleAddTopic(true)">＋ Thêm Chủ Đề Mới</button>
-    <div class="form-box" id="addTopicForm" style="display:none">
+    <button class="add-btn-dashed" id="btnShowTopic" onclick="toggleForm('topic',true)">＋ Thêm Chủ Đề Mới</button>
+    <div class="form-box" id="formTopic" style="display:none">
       <div class="form-title">Chủ Đề Mới</div>
-      <input class="inp" id="newTopicTitle" placeholder="Tên chủ đề (VD: Bán Hàng, Marketing...)" />
-      <input class="inp" id="newTopicDesc" placeholder="Mô tả ngắn..." />
+      <input class="inp" id="ntTitle" placeholder="Tên chủ đề (VD: Bán Hàng, Marketing...)"/>
+      <input class="inp" id="ntDesc"  placeholder="Mô tả ngắn..."/>
       <div class="emoji-row" id="emojiRow"></div>
       <div class="color-row" id="colorRow"></div>
       <div class="btn-row">
-        <button class="btn-primary" onclick="addTopic()">Tạo Chủ Đề</button>
-        <button class="btn-sec" onclick="toggleAddTopic(false)">Huỷ</button>
+        <button class="btn-act" id="btnAddTopic" style="background:var(--accent)" onclick="addTopic()">Tạo Chủ Đề</button>
+        <button class="btn-sec" onclick="toggleForm('topic',false)">Huỷ</button>
       </div>
     </div>
   </div>
 
   <!-- TASKS VIEW -->
   <div id="viewTasks" style="display:none">
-    <div class="topic-header" id="topicHeader"></div>
+    <div class="topic-hdr" id="topicHeader"></div>
     <div id="taskList"></div>
-    <button class="add-btn-dashed" id="btnShowAddTask" onclick="toggleAddTask(true)">＋ Thêm Task Mới</button>
-    <div class="form-box" id="addTaskForm" style="display:none">
+    <button class="add-btn-dashed" id="btnShowTask" onclick="toggleForm('task',true)">＋ Thêm Task Mới</button>
+    <div class="form-box" id="formTask" style="display:none">
       <div class="form-title">Task Mới</div>
-      <input class="inp" id="newTaskTitle" placeholder="Nội dung cần học..." />
-      <input class="inp" id="newTaskNote" placeholder="Ghi chú thêm (tuỳ chọn)..." />
-      <div class="duration-chips" id="durationChips"></div>
+      <input class="inp" id="nkTitle" placeholder="Nội dung cần học..."/>
+      <input class="inp" id="nkNote"  placeholder="Ghi chú thêm (tuỳ chọn)..."/>
+      <div class="dur-chips" id="durChips"></div>
       <div class="btn-row">
-        <button class="btn-primary" id="btnAddTask" onclick="addTask()">Thêm Task</button>
-        <button class="btn-sec" onclick="toggleAddTask(false)">Huỷ</button>
+        <button class="btn-act" id="btnAddTask" style="background:var(--accent)" onclick="addTask()">Thêm Task</button>
+        <button class="btn-sec" onclick="toggleForm('task',false)">Huỷ</button>
       </div>
     </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// ── DATA ──────────────────────────────────────────────
+// ══════════════════════════════════════════════
+//  SUPABASE CONFIG
+// ══════════════════════════════════════════════
+const SUPABASE_URL      = 'https://ogbjtjiwbojhlzgrwlvk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tmrvwE-tmvTtBDJQV0rWIA_5Z70wIo9';
+// ══════════════════════════════════════════════
+//  SQL TẠO BẢNG — chạy trong Supabase SQL Editor:
+//
+//  create table topics (
+//    id uuid primary key default gen_random_uuid(),
+//    user_id uuid references auth.users not null,
+//    title text not null, description text,
+//    emoji text default '💡', color text default '#4F6EF7',
+//    created_at timestamptz default now()
+//  );
+//  create table tasks (
+//    id uuid primary key default gen_random_uuid(),
+//    topic_id uuid references topics on delete cascade not null,
+//    user_id uuid references auth.users not null,
+//    title text not null, note text, duration int default 30,
+//    done boolean default false,
+//    created_at timestamptz default now()
+//  );
+//  alter table topics enable row level security;
+//  alter table tasks  enable row level security;
+//  create policy "own topics" on topics using (auth.uid()=user_id) with check (auth.uid()=user_id);
+//  create policy "own tasks"  on tasks  using (auth.uid()=user_id) with check (auth.uid()=user_id);
+// ══════════════════════════════════════════════
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const EMOJIS = ['💼','📣','🚀','💡','📚','🎯','🔥','💰','🧠','⚡','🎨','🏆','📊','🌍','🤝'];
-const COLORS = ['#4F6EF7','#A855F7','#EC4899','#F97316','#10B981','#EF4444','#F59E0B','#06B6D4','#84CC16','#6366F1'];
+const COLORS  = ['#4F6EF7','#A855F7','#EC4899','#F97316','#10B981','#EF4444','#F59E0B','#06B6D4','#84CC16','#6366F1'];
 
-const DEFAULT_DATA = [
-  {
-    id: 1, title: 'Bán Hàng', emoji: '💼', color: '#F97316',
-    description: 'Kỹ năng bán hàng chuyên nghiệp',
-    tasks: [
-      { id: 101, title: '16 Bước Bán Hàng', note: 'Từ tiếp cận đến chốt deal', duration: 30, done: false },
-      { id: 102, title: 'Quy Trình 8+2', note: '8 bước cốt lõi + 2 bước nâng cao', duration: 30, done: false },
-      { id: 103, title: 'Kịch Bản Chốt Sale 10 Bước', note: 'Script thực chiến', duration: 30, done: false },
-      { id: 104, title: 'Kỹ Thuật Đàm Phán', note: 'Win-win negotiation', duration: 30, done: false },
-    ]
-  },
-  {
-    id: 2, title: 'Marketing', emoji: '📣', color: '#A855F7',
-    description: 'Digital & content marketing',
-    tasks: [
-      { id: 201, title: 'Phễu Marketing', note: 'TOFU - MOFU - BOFU', duration: 30, done: false },
-      { id: 202, title: 'Viết Content Thu Hút', note: 'Hook, body, CTA', duration: 30, done: false },
-      { id: 203, title: 'Chạy Ads Facebook', note: 'Target + creative', duration: 30, done: false },
-    ]
+let user=null, topics=[], activeId=null;
+let selEmoji=EMOJIS[0], selColor=COLORS[0], selDur=30;
+let editTaskId=null;
+
+// ── TOAST ─────────────────────────────────────
+function toast(msg, ok=true){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.style.display='block';
+  el.style.borderColor=ok?'#10B98155':'#EF444455';
+  el.style.color=ok?'#6EE7B7':'#FCA5A5';
+  setTimeout(()=>el.style.display='none',2500);
+}
+
+// ── AUTH ──────────────────────────────────────
+function setAuthMode(m){
+  const isL=m==='login';
+  document.getElementById('tabLogin').className='auth-tab'+(isL?' active':'');
+  document.getElementById('tabReg').className  ='auth-tab'+(!isL?' active':'');
+  document.getElementById('authBtn').textContent=isL?'Đăng nhập':'Đăng ký';
+  document.getElementById('aPass2').style.display=isL?'none':'';
+  hideMsg();
+}
+function showErr(t){const e=document.getElementById('authErr');e.textContent=t;e.style.display='';document.getElementById('authOk').style.display='none';}
+function showOk(t){const e=document.getElementById('authOk');e.textContent=t;e.style.display='';document.getElementById('authErr').style.display='none';}
+function hideMsg(){document.getElementById('authErr').style.display='none';document.getElementById('authOk').style.display='none';}
+
+async function handleAuth(){
+  const email=document.getElementById('aEmail').value.trim();
+  const pass =document.getElementById('aPass').value;
+  const pass2=document.getElementById('aPass2').value;
+  const isReg=document.getElementById('tabReg').classList.contains('active');
+  if(!email||!pass){showErr('Vui lòng điền đầy đủ.');return;}
+  if(isReg&&pass!==pass2){showErr('Mật khẩu không khớp.');return;}
+  if(pass.length<6){showErr('Mật khẩu tối thiểu 6 ký tự.');return;}
+  const btn=document.getElementById('authBtn');
+  btn.disabled=true;btn.textContent='...';
+  const {error}=isReg
+    ? await sb.auth.signUp({email,password:pass})
+    : await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent=isReg?'Đăng ký':'Đăng nhập';
+  if(error){showErr(error.message);return;}
+  if(isReg) showOk('✅ Kiểm tra email để xác nhận tài khoản!');
+}
+
+async function loginGoogle(){
+  const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}});
+  if(error) showErr(error.message);
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  user=null;topics=[];
+  document.getElementById('userInfo').style.display='none';
+  document.getElementById('appMain').style.display='none';
+  document.getElementById('authScreen').style.display='';
+  document.getElementById('tabTasks').style.display='none';
+}
+
+sb.auth.onAuthStateChange(async(_,session)=>{
+  if(session?.user){
+    user=session.user;
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('appMain').style.display='';
+    document.getElementById('userInfo').style.display='flex';
+    const em=user.email||'';
+    document.getElementById('userEmail').textContent=em;
+    document.getElementById('userAvatar').textContent=em[0]?.toUpperCase()||'?';
+    buildPickers();
+    await loadTopics();
+    renderTopics();
   }
-];
+});
 
-let data = JSON.parse(localStorage.getItem('lh_data') || 'null') || DEFAULT_DATA;
-let activeTopicId = data[0]?.id ?? null;
-let selectedEmoji = EMOJIS[0];
-let selectedColor = COLORS[0];
-let selectedDuration = 30;
-let editingTaskId = null;
-let currentView = 'topics';
-
-function save() { localStorage.setItem('lh_data', JSON.stringify(data)); }
-
-// ── HELPERS ───────────────────────────────────────────
-function topicDone(t) { return t.tasks.filter(tk => tk.done).length; }
-function topicPct(t)  { return t.tasks.length ? Math.round(topicDone(t)/t.tasks.length*100) : 0; }
-function globalPct()  {
-  const total = data.reduce((s,t) => s+t.tasks.length, 0);
-  const done  = data.reduce((s,t) => s+topicDone(t), 0);
-  return total ? Math.round(done/total*100) : 0;
+// ── DB ────────────────────────────────────────
+async function loadTopics(){
+  document.getElementById('topicList').innerHTML='<div class="loading"><div class="spinner"></div><p>Đang tải...</p></div>';
+  const{data,error}=await sb.from('topics').select('*,tasks(*)').eq('user_id',user.id).order('created_at');
+  if(error){ document.getElementById('topicList').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><p>Lỗi: ${error.message}<br><small>Hãy chạy SQL tạo bảng trong Supabase!</small></p></div>`; return; }
+  topics=(data||[]).map(t=>({...t,tasks:(t.tasks||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))}));
+  activeId=activeId||topics[0]?.id||null;
 }
-function activeTopic() { return data.find(t => t.id === activeTopicId); }
-function uid() { return Date.now() + Math.random(); }
-function hex2rgba(hex, a) {
-  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-  return `rgba(${r},${g},${b},${a})`;
+async function dbInsertTopic(o){
+  const{data,error}=await sb.from('topics').insert({user_id:user.id,...o}).select().single();
+  if(error){toast('Lỗi: '+error.message,false);return null;}return data;
 }
-
-// ── GLOBAL PROGRESS ───────────────────────────────────
-function updateGlobalProg() {
-  const p = globalPct();
-  document.getElementById('globalProgBar').style.width = p + '%';
-  document.getElementById('globalProgLabel').textContent = p + '%';
+async function dbDeleteTopic(id){await sb.from('topics').delete().eq('id',id).eq('user_id',user.id);}
+async function dbInsertTask(o,topicId){
+  const{data,error}=await sb.from('tasks').insert({user_id:user.id,topic_id:topicId,...o,done:false}).select().single();
+  if(error){toast('Lỗi: '+error.message,false);return null;}return data;
 }
+async function dbUpdate(table,id,fields){await sb.from(table).update(fields).eq('id',id).eq('user_id',user.id);}
+async function dbDelete(table,id){await sb.from(table).delete().eq('id',id).eq('user_id',user.id);}
 
-// ── VIEW SWITCHING ────────────────────────────────────
-function switchView(v) {
-  currentView = v;
-  document.getElementById('viewTopics').style.display = v === 'topics' ? '' : 'none';
-  document.getElementById('viewTasks').style.display  = v === 'tasks'  ? '' : 'none';
-  document.getElementById('tabTopics').className = 'tab ' + (v==='topics'?'active':'inactive');
-  document.getElementById('tabTasks').className  = 'tab ' + (v==='tasks' ?'active':'inactive');
-  if (v === 'tasks') renderTasks();
-  else renderTopics();
+// ── HELPERS ───────────────────────────────────
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const h2r=(h,a)=>{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;};
+const tDone=t=>(t.tasks||[]).filter(k=>k.done).length;
+const tPct =t=>t.tasks?.length?Math.round(tDone(t)/t.tasks.length*100):0;
+const gPct =()=>{const tot=topics.reduce((s,t)=>s+(t.tasks?.length||0),0),done=topics.reduce((s,t)=>s+tDone(t),0);return tot?Math.round(done/tot*100):0;};
+const activeTopic=()=>topics.find(t=>t.id===activeId);
+function updProg(){const p=gPct();document.getElementById('gProgBar').style.width=p+'%';document.getElementById('gProgLabel').textContent=p+'%';}
+
+// ── VIEWS ─────────────────────────────────────
+function switchView(v){
+  document.getElementById('viewTopics').style.display=v==='topics'?'':'none';
+  document.getElementById('viewTasks').style.display =v==='tasks' ?'':'none';
+  document.getElementById('tabTopics').className='tab '+(v==='topics'?'active':'inactive');
+  document.getElementById('tabTasks').className ='tab '+(v==='tasks' ?'active':'inactive');
+  v==='tasks'?renderTasks():renderTopics();
 }
-
-function openTopic(id) {
-  activeTopicId = id;
-  const t = activeTopic();
-  const tab = document.getElementById('tabTasks');
-  tab.style.display = '';
-  tab.textContent = t.emoji + ' ' + t.title;
-  tab.style.background = t.color;
-  tab.style.color = '#fff';
+function openTopic(id){
+  activeId=id;const t=activeTopic();
+  const tab=document.getElementById('tabTasks');
+  tab.style.display='';tab.textContent=t.emoji+' '+t.title;
+  tab.style.background=t.color;tab.style.color='#fff';
   switchView('tasks');
 }
 
-// ── RENDER TOPICS ─────────────────────────────────────
-function renderTopics() {
-  const list = document.getElementById('topicList');
-  list.innerHTML = '';
-  data.forEach(t => {
-    const pct = topicPct(t);
-    const div = document.createElement('div');
-    div.className = 'topic-card';
-    div.style.borderColor = activeTopicId === t.id ? t.color + '88' : '';
-    div.style.setProperty('--tc', t.color);
-    div.innerHTML = `
-      <style>.tc${t.id}::before{background:${t.color}}</style>
-      <div class="topic-icon" style="background:${hex2rgba(t.color,.12)}">${t.emoji}</div>
+// ── RENDER TOPICS ─────────────────────────────
+function renderTopics(){
+  const list=document.getElementById('topicList');list.innerHTML='';
+  if(!topics.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">🎯</div><p>Tạo chủ đề đầu tiên để bắt đầu!</p></div>';
+    updProg();return;
+  }
+  topics.forEach(t=>{
+    const pct=tPct(t),div=document.createElement('div');
+    div.className='topic-card';
+    div.style.borderColor=activeId===t.id?t.color+'88':'';
+    div.innerHTML=`
+      <div class="topic-icon" style="background:${h2r(t.color,.12)}">${t.emoji}</div>
       <div class="topic-info">
-        <div class="topic-name">${t.title}
-          <span style="font-size:11px;color:${t.color};background:${hex2rgba(t.color,.15)};padding:2px 8px;border-radius:20px;margin-left:8px;font-family:'DM Sans',sans-serif;font-weight:600">${topicDone(t)}/${t.tasks.length}</span>
-        </div>
-        <div class="topic-desc">${t.description || 'Chưa có mô tả'}</div>
-        <div class="topic-prog-bar"><div class="topic-prog-fill" style="width:${pct}%;background:${t.color}"></div></div>
+        <div class="topic-name">${esc(t.title)}<span class="badge" style="color:${t.color};background:${h2r(t.color,.15)}">${tDone(t)}/${t.tasks?.length||0}</span></div>
+        <div class="topic-desc">${esc(t.description||'Chưa có mô tả')}</div>
+        <div class="prog-bar-sm"><div class="prog-fill-sm" style="width:${pct}%;background:${t.color}"></div></div>
       </div>
       <div class="topic-meta">
         <div class="topic-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div>
-        <div class="topic-count">${t.tasks.length} tasks · ${t.tasks.length*30}p</div>
-        <button class="btn-del" onclick="event.stopPropagation();deleteTopic(${t.id})">🗑</button>
-      </div>
-    `;
-    div.classList.add('tc'+t.id);
-    div.addEventListener('click', () => openTopic(t.id));
+        <div class="topic-count">${t.tasks?.length||0} tasks</div>
+        <button class="btn-del" onclick="event.stopPropagation();deleteTopic('${t.id}')">🗑</button>
+      </div>`;
+    div.addEventListener('click',()=>openTopic(t.id));
     list.appendChild(div);
   });
-  updateGlobalProg();
+  updProg();
 }
 
-// ── RENDER TASKS ──────────────────────────────────────
-function renderTasks() {
-  const t = activeTopic(); if (!t) return;
-  // Header
-  const pct = topicPct(t);
-  document.getElementById('topicHeader').innerHTML = `
-    <div class="topic-header-icon">${t.emoji}</div>
-    <div class="topic-header-info">
-      <h2>${t.title}</h2>
-      <p>${t.description || ''}</p>
-    </div>
-    <div class="topic-header-stat">
-      <div class="stat-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div>
-      <div class="stat-sub">${topicDone(t)}/${t.tasks.length} hoàn thành</div>
-    </div>
-  `;
-  // Update add btn colour
-  document.getElementById('btnShowAddTask').style.borderColor = t.color + '55';
-
-  // Task list
-  const list = document.getElementById('taskList');
-  list.innerHTML = '';
-  if (!t.tasks.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>Chưa có task nào. Thêm task đầu tiên!</p></div>`;
-    return;
+// ── RENDER TASKS ──────────────────────────────
+function renderTasks(){
+  const t=activeTopic();if(!t)return;
+  const pct=tPct(t);
+  document.getElementById('topicHeader').innerHTML=`
+    <div class="hdr-icon">${t.emoji}</div>
+    <div class="hdr-info"><h2>${esc(t.title)}</h2><p>${esc(t.description||'')}</p></div>
+    <div class="hdr-stat"><div class="hdr-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div><div class="hdr-sub">${tDone(t)}/${t.tasks?.length||0} xong</div></div>`;
+  document.getElementById('btnShowTask').style.borderColor=t.color+'55';
+  document.getElementById('btnAddTask').style.background=t.color;
+  const list=document.getElementById('taskList');list.innerHTML='';
+  if(!t.tasks?.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>Chưa có task nào!</p></div>';
+    updProg();return;
   }
-  t.tasks.forEach(tk => {
-    const row = document.createElement('div');
-    row.className = 'task-row' + (tk.done ? ' done' : '');
-    if (editingTaskId === tk.id) {
-      row.innerHTML = `
-        <div style="flex:1">
-          <input class="inp" id="editTitle_${tk.id}" value="${escHtml(tk.title)}" style="margin-bottom:8px"/>
-          <input class="inp" id="editNote_${tk.id}" value="${escHtml(tk.note||'')}" placeholder="Ghi chú..." style="margin-bottom:10px"/>
-          <div class="btn-row">
-            <button class="btn-primary" style="background:${t.color}" onclick="saveEditTask(${t.id},${tk.id})">Lưu</button>
-            <button class="btn-sec" onclick="cancelEdit()">Huỷ</button>
-          </div>
-        </div>
-      `;
-    } else {
-      row.innerHTML = `
-        <div class="checkbox ${tk.done?'checked':''}" style="${tk.done?'background:'+t.color+';border-color:'+t.color:''}" onclick="toggleTask(${t.id},${tk.id})">
-          ${tk.done?'✓':''}
-        </div>
-        <div class="task-info">
-          <div class="task-name ${tk.done?'done':''}">${escHtml(tk.title)}</div>
-          ${tk.note ? `<div class="task-note">${escHtml(tk.note)}</div>` : ''}
+  t.tasks.forEach(tk=>{
+    const row=document.createElement('div');
+    row.className='task-row'+(tk.done?' done':'');
+    if(editTaskId===tk.id){
+      row.innerHTML=`<div style="flex:1">
+        <input class="inp" id="et_t" value="${esc(tk.title)}" style="margin-bottom:8px"/>
+        <input class="inp" id="et_n" value="${esc(tk.note||'')}" placeholder="Ghi chú..." style="margin-bottom:10px"/>
+        <div class="btn-row">
+          <button class="btn-act" style="background:${t.color}" onclick="saveEdit('${t.id}','${tk.id}')">Lưu</button>
+          <button class="btn-sec" onclick="cancelEdit()">Huỷ</button>
+        </div></div>`;
+    }else{
+      row.innerHTML=`
+        <div class="checkbox ${tk.done?'checked':''}" style="${tk.done?'background:'+t.color+';border-color:'+t.color:''}" onclick="toggleTask('${t.id}','${tk.id}',${!tk.done})">${tk.done?'✓':''}</div>
+        <div class="task-body">
+          <div class="task-name ${tk.done?'done':''}">${esc(tk.title)}</div>
+          ${tk.note?`<div class="task-note">${esc(tk.note)}</div>`:''}
         </div>
         <div class="task-right">
           <div class="time-badge">⏱ ${tk.duration}p</div>
           <div class="task-actions">
-            <button class="act-btn act-edit" onclick="startEdit(${tk.id})">✏️</button>
-            <button class="act-btn act-del" onclick="deleteTask(${t.id},${tk.id})">🗑</button>
+            <button class="act-btn act-edit" onclick="startEdit('${tk.id}')">✏️</button>
+            <button class="act-btn act-del"  onclick="deleteTask('${t.id}','${tk.id}')">🗑</button>
           </div>
-        </div>
-      `;
+        </div>`;
     }
     list.appendChild(row);
   });
-  updateGlobalProg();
+  updProg();
 }
 
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// ── TOPIC CRUD ────────────────────────────────────────
-function toggleAddTopic(show) {
-  document.getElementById('addTopicForm').style.display = show ? '' : 'none';
-  document.getElementById('btnShowAddTopic').style.display = show ? 'none' : '';
+// ── TOPIC CRUD ────────────────────────────────
+function toggleForm(type,show){
+  const isT=type==='topic';
+  document.getElementById(isT?'formTopic':'formTask').style.display=show?'':'none';
+  document.getElementById(isT?'btnShowTopic':'btnShowTask').style.display=show?'none':'';
+  if(show&&!isT)buildDurChips();
 }
-
-function addTopic() {
-  const title = document.getElementById('newTopicTitle').value.trim();
-  if (!title) { document.getElementById('newTopicTitle').focus(); return; }
-  const desc = document.getElementById('newTopicDesc').value.trim();
-  const t = { id: uid(), title, description: desc, emoji: selectedEmoji, color: selectedColor, tasks: [] };
-  data.push(t); save();
-  document.getElementById('newTopicTitle').value = '';
-  document.getElementById('newTopicDesc').value = '';
-  toggleAddTopic(false);
-  activeTopicId = t.id;
-  renderTopics();
-  openTopic(t.id);
+async function addTopic(){
+  const title=document.getElementById('ntTitle').value.trim();
+  if(!title){document.getElementById('ntTitle').focus();return;}
+  const desc=document.getElementById('ntDesc').value.trim();
+  const btn=document.getElementById('btnAddTopic');btn.disabled=true;btn.textContent='...';
+  const saved=await dbInsertTopic({title,description:desc,emoji:selEmoji,color:selColor});
+  btn.disabled=false;btn.textContent='Tạo Chủ Đề';
+  if(!saved)return;
+  saved.tasks=[];topics.push(saved);
+  document.getElementById('ntTitle').value='';document.getElementById('ntDesc').value='';
+  toggleForm('topic',false);activeId=saved.id;renderTopics();openTopic(saved.id);
+  toast('✅ Đã tạo chủ đề!');
 }
-
-function deleteTopic(id) {
-  if (!confirm('Xoá chủ đề này?')) return;
-  data = data.filter(t => t.id !== id);
-  if (activeTopicId === id) activeTopicId = data[0]?.id ?? null;
-  save();
-  const tab = document.getElementById('tabTasks');
-  tab.style.display = 'none';
+async function deleteTopic(id){
+  if(!confirm('Xoá chủ đề và tất cả task bên trong?'))return;
+  topics=topics.filter(t=>t.id!==id);
+  if(activeId===id)activeId=topics[0]?.id||null;
+  document.getElementById('tabTasks').style.display='none';
   switchView('topics');
+  await dbDelete('topics',id);
+  toast('🗑 Đã xoá chủ đề');
 }
 
-// ── TASK CRUD ─────────────────────────────────────────
-function toggleAddTask(show) {
-  document.getElementById('addTaskForm').style.display = show ? '' : 'none';
-  document.getElementById('btnShowAddTask').style.display = show ? 'none' : '';
-  if (show) buildDurationChips();
+// ── TASK CRUD ─────────────────────────────────
+async function addTask(){
+  const title=document.getElementById('nkTitle').value.trim();
+  if(!title){document.getElementById('nkTitle').focus();return;}
+  const note=document.getElementById('nkNote').value.trim();
+  const btn=document.getElementById('btnAddTask');btn.disabled=true;btn.textContent='...';
+  const saved=await dbInsertTask({title,note,duration:selDur},activeId);
+  btn.disabled=false;btn.textContent='Thêm Task';
+  if(!saved)return;
+  topics=topics.map(t=>t.id===activeId?{...t,tasks:[...t.tasks,saved]}:t);
+  document.getElementById('nkTitle').value='';document.getElementById('nkNote').value='';
+  toggleForm('task',false);renderTasks();
+  toast('✅ Đã thêm task!');
 }
-
-function buildDurationChips() {
-  const t = activeTopic();
-  const wrap = document.getElementById('durationChips');
-  wrap.innerHTML = '';
-  [15,30,45,60].forEach(d => {
-    const btn = document.createElement('button');
-    btn.className = 'dur-chip' + (selectedDuration === d ? ' sel' : '');
-    btn.style.background = selectedDuration === d ? t.color : '';
-    btn.style.borderColor = selectedDuration === d ? t.color : '';
-    btn.textContent = d + ' phút';
-    btn.onclick = () => { selectedDuration = d; buildDurationChips(); };
-    wrap.appendChild(btn);
-  });
-}
-
-function addTask() {
-  const title = document.getElementById('newTaskTitle').value.trim();
-  if (!title) { document.getElementById('newTaskTitle').focus(); return; }
-  const note = document.getElementById('newTaskNote').value.trim();
-  const task = { id: uid(), title, note, duration: selectedDuration, done: false };
-  data = data.map(t => t.id === activeTopicId ? { ...t, tasks: [...t.tasks, task] } : t);
-  save();
-  document.getElementById('newTaskTitle').value = '';
-  document.getElementById('newTaskNote').value = '';
-  toggleAddTask(false);
+async function toggleTask(topicId,taskId,done){
+  topics=topics.map(t=>t.id===topicId?{...t,tasks:t.tasks.map(k=>k.id===taskId?{...k,done}:k)}:t);
   renderTasks();
+  await dbUpdate('tasks',taskId,{done});
+  if(done) toast('✅ Hoàn thành task!');
+}
+async function deleteTask(topicId,taskId){
+  topics=topics.map(t=>t.id===topicId?{...t,tasks:t.tasks.filter(k=>k.id!==taskId)}:t);
+  renderTasks();await dbDelete('tasks',taskId);toast('🗑 Đã xoá task');
+}
+function startEdit(id){editTaskId=id;renderTasks();}
+function cancelEdit(){editTaskId=null;renderTasks();}
+async function saveEdit(topicId,taskId){
+  const title=document.getElementById('et_t')?.value.trim();
+  const note =document.getElementById('et_n')?.value.trim();
+  if(!title)return;
+  topics=topics.map(t=>t.id===topicId?{...t,tasks:t.tasks.map(k=>k.id===taskId?{...k,title,note}:k)}:t);
+  editTaskId=null;renderTasks();
+  await dbUpdate('tasks',taskId,{title,note});toast('✅ Đã lưu!');
 }
 
-function toggleTask(topicId, taskId) {
-  data = data.map(t => t.id === topicId
-    ? { ...t, tasks: t.tasks.map(tk => tk.id === taskId ? { ...tk, done: !tk.done } : tk) }
-    : t);
-  save(); renderTasks();
+// ── PICKERS ───────────────────────────────────
+function buildPickers(){buildEmojiPicker();buildColorPicker();}
+function buildEmojiPicker(){
+  const w=document.getElementById('emojiRow');w.innerHTML='';
+  EMOJIS.forEach(e=>{
+    const b=document.createElement('button');b.className='emoji-chip'+(e===selEmoji?' sel':'');b.textContent=e;
+    b.onclick=()=>{selEmoji=e;w.querySelectorAll('.emoji-chip').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');};
+    w.appendChild(b);
+  });
 }
-
-function deleteTask(topicId, taskId) {
-  data = data.map(t => t.id === topicId ? { ...t, tasks: t.tasks.filter(tk => tk.id !== taskId) } : t);
-  save(); renderTasks();
+function buildColorPicker(){
+  const w=document.getElementById('colorRow');w.innerHTML='';
+  COLORS.forEach(c=>{
+    const b=document.createElement('button');b.className='color-dot'+(c===selColor?' sel':'');b.style.background=c;
+    b.onclick=()=>{selColor=c;w.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');};
+    w.appendChild(b);
+  });
 }
-
-function startEdit(taskId) { editingTaskId = taskId; renderTasks(); }
-function cancelEdit() { editingTaskId = null; renderTasks(); }
-
-function saveEditTask(topicId, taskId) {
-  const title = document.getElementById('editTitle_'+taskId)?.value.trim();
-  const note  = document.getElementById('editNote_'+taskId)?.value.trim();
-  if (!title) return;
-  data = data.map(t => t.id === topicId
-    ? { ...t, tasks: t.tasks.map(tk => tk.id === taskId ? { ...tk, title, note } : tk) }
-    : t);
-  editingTaskId = null; save(); renderTasks();
-}
-
-// ── INIT EMOJI / COLOR PICKERS ────────────────────────
-function buildEmojiPicker() {
-  const wrap = document.getElementById('emojiRow');
-  EMOJIS.forEach(e => {
-    const btn = document.createElement('button');
-    btn.className = 'emoji-chip' + (e === selectedEmoji ? ' sel' : '');
-    btn.textContent = e;
-    btn.onclick = () => {
-      selectedEmoji = e;
-      wrap.querySelectorAll('.emoji-chip').forEach(b => b.classList.remove('sel'));
-      btn.classList.add('sel');
-    };
-    wrap.appendChild(btn);
+function buildDurChips(){
+  const t=activeTopic();const w=document.getElementById('durChips');w.innerHTML='';
+  [15,30,45,60].forEach(d=>{
+    const b=document.createElement('button');b.className='dur-chip'+(selDur===d?' sel':'');
+    if(selDur===d){b.style.background=t?.color||'var(--accent)';b.style.borderColor=t?.color||'var(--accent)';}
+    b.textContent=d+' phút';b.onclick=()=>{selDur=d;buildDurChips();};
+    w.appendChild(b);
   });
 }
 
-function buildColorPicker() {
-  const wrap = document.getElementById('colorRow');
-  COLORS.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'color-dot' + (c === selectedColor ? ' sel' : '');
-    btn.style.background = c;
-    btn.onclick = () => {
-      selectedColor = c;
-      wrap.querySelectorAll('.color-dot').forEach(b => b.classList.remove('sel'));
-      btn.classList.add('sel');
-    };
-    wrap.appendChild(btn);
-  });
-}
-
-// ── BOOT ──────────────────────────────────────────────
-buildEmojiPicker();
-buildColorPicker();
-renderTopics();
+['aPass','aPass2'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();}));
 </script>
 </body>
 </html>
