@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080B14;
+    --surface: #0E1220;
+    --surface2: #151A2B;
+    --border: #1E2438;
+    --border2: #252D45;
+    --text: #D8DFF0;
+    --text2: #6B7599;
+    --text3: #3D4668;
+    --accent: #4F6EF7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* ── HEADER ── */
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,11,20,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+  .header-inner {
+    max-width: 780px; margin: 0 auto;
+    display: flex; align-items: center; gap: 16px;
+    height: 64px;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .global-prog {
+    margin-left: auto; display: flex; align-items: center; gap: 10px;
+  }
+  .prog-bar-wrap { width: 120px; height: 5px; background: var(--border2); border-radius: 3px; overflow: hidden; }
+  .prog-bar-fill { height: 100%; border-radius: 3px; transition: width .4s ease; background: linear-gradient(90deg,#4F6EF7,#A78BFA); }
+  .prog-label { font-size: 12px; color: var(--text2); font-weight: 600; }
+
+  /* ── MAIN ── */
+  .main { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 6px; margin-bottom: 24px; }
+  .tab {
+    padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab.active { background: var(--accent); color: #fff; }
+  .tab.inactive { background: var(--surface2); color: var(--text2); border-color: var(--border); }
+  .tab.inactive:hover { border-color: var(--accent); color: var(--text); }
+
+  /* ── TOPIC CARD ── */
+  .topic-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; cursor: pointer;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 16px;
+    position: relative; overflow: hidden;
+  }
+  .topic-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    border-radius: 2px 0 0 2px;
+  }
+  .topic-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .topic-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .topic-info { flex: 1; min-width: 0; }
+  .topic-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .topic-desc { font-size: 12px; color: var(--text2); margin-bottom: 10px; }
+  .topic-prog-bar { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+  .topic-prog-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+  .topic-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .topic-pct { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+  .topic-count { font-size: 11px; color: var(--text3); }
+  .btn-del { background: none; cursor: pointer; font-size: 14px; color: var(--text3); padding: 4px; transition: color .2s; }
+  .btn-del:hover { color: #EF4444; }
+
+  /* ── ADD TOPIC FORM ── */
+  .add-btn-dashed {
+    width: 100%; padding: 16px; border-radius: 14px;
+    background: transparent; border: 2px dashed var(--border2);
+    color: var(--text2); font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: border-color .2s, color .2s;
+  }
+  .add-btn-dashed:hover { border-color: var(--accent); color: var(--text); }
+  .form-box {
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 14px; padding: 20px; margin-top: 12px;
+    animation: fadeUp .2s ease;
+  }
+  .form-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .inp {
+    width: 100%; background: var(--bg); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 10px 14px; color: var(--text);
+    font-size: 14px; margin-bottom: 10px; font-family: 'DM Sans', sans-serif;
+    transition: border-color .2s;
+  }
+  .inp:focus { border-color: var(--accent); outline: none; }
+  .inp::placeholder { color: var(--text3); }
+  .emoji-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .emoji-chip {
+    padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); font-size: 18px; cursor: pointer; transition: border-color .2s, background .2s;
+  }
+  .emoji-chip.sel { border-color: var(--accent); background: #4F6EF71A; }
+  .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .color-dot {
+    width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+    border: 3px solid transparent; transition: border-color .2s;
+  }
+  .color-dot.sel { border-color: #fff; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-primary {
+    flex: 1; padding: 11px; border-radius: 8px; background: var(--accent);
+    color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+    font-family: 'Syne', sans-serif; border: none; transition: opacity .2s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-sec {
+    padding: 11px 18px; border-radius: 8px; background: var(--border2);
+    color: var(--text2); font-weight: 600; font-size: 14px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; border: none; transition: background .2s;
+  }
+  .btn-sec:hover { background: var(--border); }
+
+  /* ── TOPIC HEADER ── */
+  .topic-header {
+    background: var(--surface); border-radius: 16px; padding: 20px;
+    margin-bottom: 18px; display: flex; align-items: center; gap: 14px;
+    border: 1px solid var(--border);
+  }
+  .topic-header-icon { font-size: 36px; }
+  .topic-header-info h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+  .topic-header-info p { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .topic-header-stat { margin-left: auto; text-align: right; }
+  .stat-pct { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; }
+  .stat-sub { font-size: 11px; color: var(--text2); }
+
+  /* ── TASK ROW ── */
+  .task-row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 14px;
+    transition: border-color .2s, background .2s;
+    position: relative; animation: fadeUp .2s ease;
+  }
+  .task-row:hover .task-actions { opacity: 1; }
+  .task-row.done { background: #0A0D18; }
+  .checkbox {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border2);
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #fff; transition: all .2s;
+  }
+  .checkbox.checked { color: #fff; border-color: transparent; }
+  .task-info { flex: 1; min-width: 0; }
+  .task-name { font-size: 14px; font-weight: 600; transition: color .2s; }
+  .task-name.done { color: var(--text3); text-decoration: line-through; }
+  .task-note { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .task-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .time-badge { font-size: 11px; color: var(--text3); background: var(--surface2); padding: 3px 9px; border-radius: 20px; }
+  .task-actions { opacity: 0; display: flex; gap: 6px; transition: opacity .2s; }
+  .act-btn {
+    padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;
+    border: none; font-family: 'DM Sans', sans-serif; transition: background .2s;
+  }
+  .act-edit { background: var(--border2); color: var(--text2); }
+  .act-edit:hover { background: var(--border); color: var(--text); }
+  .act-del { background: #2A1218; color: #EF4444; }
+  .act-del:hover { background: #3A1A22; }
+
+  /* ── TASK FORM ── */
+  .duration-chips { display: flex; gap: 6px; margin-bottom: 14px; }
+  .dur-chip {
+    padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border2); background: var(--bg);
+    color: var(--text2); font-family: 'DM Sans', sans-serif; transition: all .2s;
+  }
+  .dur-chip.sel { color: #fff; border-color: transparent; }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 50px 0; }
+  .empty-icon { font-size: 48px; margin-bottom: 14px; }
+  .empty p { color: var(--text2); font-size: 14px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">Learning<span>Hub</span></div>
+    <div class="global-prog">
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill" id="globalProgBar" style="width:0%"></div>
+      </div>
+      <div class="prog-label" id="globalProgLabel">0%</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <div class="tab active" id="tabTopics" onclick="switchView('topics')">📋 Chủ Đề</div>
+    <div class="tab inactive" id="tabTasks" style="display:none" onclick="switchView('tasks')"></div>
+  </div>
+
+  <!-- TOPICS VIEW -->
+  <div id="viewTopics">
+    <div id="topicList"></div>
+    <button class="add-btn-dashed" id="btnShowAddTopic" onclick="toggleAddTopic(true)">＋ Thêm Chủ Đề Mới</button>
+    <div class="form-box" id="addTopicForm" style="display:none">
+      <div class="form-title">Chủ Đề Mới</div>
+      <input class="inp" id="newTopicTitle" placeholder="Tên chủ đề (VD: Bán Hàng, Marketing...)" />
+      <input class="inp" id="newTopicDesc" placeholder="Mô tả ngắn..." />
+      <div class="emoji-row" id="emojiRow"></div>
+      <div class="color-row" id="colorRow"></div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="addTopic()">Tạo Chủ Đề</button>
+        <button class="btn-sec" onclick="toggleAddTopic(false)">Huỷ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASKS VIEW -->
+  <div id="viewTasks" style="display:none">
+    <div class="topic-header" id="topicHeader"></div>
+    <div id="taskList"></div>
+    <button class="add-btn-dashed" id="btnShowAddTask" onclick="toggleAddTask(true)">＋ Thêm Task Mới</button>
+    <div class="form-box" id="addTaskForm" style="display:none">
+      <div class="form-title">Task Mới</div>
+      <input class="inp" id="newTaskTitle" placeholder="Nội dung cần học..." />
+      <input class="inp" id="newTaskNote" placeholder="Ghi chú thêm (tuỳ chọn)..." />
+      <div class="duration-chips" id="durationChips"></div>
+      <div class="btn-row">
+        <button class="btn-primary" id="btnAddTask" onclick="addTask()">Thêm Task</button>
+        <button class="btn-sec" onclick="toggleAddTask(false)">Huỷ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const EMOJIS = ['💼','📣','🚀','💡','📚','🎯','🔥','💰','🧠','⚡','🎨','🏆','📊','🌍','🤝'];
+const COLORS = ['#4F6EF7','#A855F7','#EC4899','#F97316','#10B981','#EF4444','#F59E0B','#06B6D4','#84CC16','#6366F1'];
+
+const DEFAULT_DATA = [
+  {
+    id: 1, title: 'Bán Hàng', emoji: '💼', color: '#F97316',
+    description: 'Kỹ năng bán hàng chuyên nghiệp',
+    tasks: [
+      { id: 101, title: '16 Bước Bán Hàng', note: 'Từ tiếp cận đến chốt deal', duration: 30, done: false },
+      { id: 102, title: 'Quy Trình 8+2', note: '8 bước cốt lõi + 2 bước nâng cao', duration: 30, done: false },
+      { id: 103, title: 'Kịch Bản Chốt Sale 10 Bước', note: 'Script thực chiến', duration: 30, done: false },
+      { id: 104, title: 'Kỹ Thuật Đàm Phán', note: 'Win-win negotiation', duration: 30, done: false },
+    ]
+  },
+  {
+    id: 2, title: 'Marketing', emoji: '📣', color: '#A855F7',
+    description: 'Digital & content marketing',
+    tasks: [
+      { id: 201, title: 'Phễu Marketing', note: 'TOFU - MOFU - BOFU', duration: 30, done: false },
+      { id: 202, title: 'Viết Content Thu Hút', note: 'Hook, body, CTA', duration: 30, done: false },
+      { id: 203, title: 'Chạy Ads Facebook', note: 'Target + creative', duration: 30, done: false },
+    ]
+  }
+];
+
+let data = JSON.parse(localStorage.getItem('lh_data') || 'null') || DEFAULT_DATA;
+let activeTopicId = data[0]?.id ?? null;
+let selectedEmoji = EMOJIS[0];
+let selectedColor = COLORS[0];
+let selectedDuration = 30;
+let editingTaskId = null;
+let currentView = 'topics';
+
+function save() { localStorage.setItem('lh_data', JSON.stringify(data)); }
+
+// ── HELPERS ───────────────────────────────────────────
+function topicDone(t) { return t.tasks.filter(tk => tk.done).length; }
+function topicPct(t)  { return t.tasks.length ? Math.round(topicDone(t)/t.tasks.length*100) : 0; }
+function globalPct()  {
+  const total = data.reduce((s,t) => s+t.tasks.length, 0);
+  const done  = data.reduce((s,t) => s+topicDone(t), 0);
+  return total ? Math.round(done/total*100) : 0;
+}
+function activeTopic() { return data.find(t => t.id === activeTopicId); }
+function uid() { return Date.now() + Math.random(); }
+function hex2rgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── GLOBAL PROGRESS ───────────────────────────────────
+function updateGlobalProg() {
+  const p = globalPct();
+  document.getElementById('globalProgBar').style.width = p + '%';
+  document.getElementById('globalProgLabel').textContent = p + '%';
+}
+
+// ── VIEW SWITCHING ────────────────────────────────────
+function switchView(v) {
+  currentView = v;
+  document.getElementById('viewTopics').style.display = v === 'topics' ? '' : 'none';
+  document.getElementById('viewTasks').style.display  = v === 'tasks'  ? '' : 'none';
+  document.getElementById('tabTopics').className = 'tab ' + (v==='topics'?'active':'inactive');
+  document.getElementById('tabTasks').className  = 'tab ' + (v==='tasks' ?'active':'inactive');
+  if (v === 'tasks') renderTasks();
+  else renderTopics();
+}
+
+function openTopic(id) {
+  activeTopicId = id;
+  const t = activeTopic();
+  const tab = document.getElementById('tabTasks');
+  tab.style.display = '';
+  tab.textContent = t.emoji + ' ' + t.title;
+  tab.style.background = t.color;
+  tab.style.color = '#fff';
+  switchView('tasks');
+}
+
+// ── RENDER TOPICS ─────────────────────────────────────
+function renderTopics() {
+  const list = document.getElementById('topicList');
+  list.innerHTML = '';
+  data.forEach(t => {
+    const pct = topicPct(t);
+    const div = document.createElement('div');
+    div.className = 'topic-card';
+    div.style.borderColor = activeTopicId === t.id ? t.color + '88' : '';
+    div.style.setProperty('--tc', t.color);
+    div.innerHTML = `
+      <style>.tc${t.id}::before{background:${t.color}}</style>
+      <div class="topic-icon" style="background:${hex2rgba(t.color,.12)}">${t.emoji}</div>
+      <div class="topic-info">
+        <div class="topic-name">${t.title}
+          <span style="font-size:11px;color:${t.color};background:${hex2rgba(t.color,.15)};padding:2px 8px;border-radius:20px;margin-left:8px;font-family:'DM Sans',sans-serif;font-weight:600">${topicDone(t)}/${t.tasks.length}</span>
+        </div>
+        <div class="topic-desc">${t.description || 'Chưa có mô tả'}</div>
+        <div class="topic-prog-bar"><div class="topic-prog-fill" style="width:${pct}%;background:${t.color}"></div></div>
+      </div>
+      <div class="topic-meta">
+        <div class="topic-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div>
+        <div class="topic-count">${t.tasks.length} tasks · ${t.tasks.length*30}p</div>
+        <button class="btn-del" onclick="event.stopPropagation();deleteTopic(${t.id})">🗑</button>
+      </div>
+    `;
+    div.classList.add('tc'+t.id);
+    div.addEventListener('click', () => openTopic(t.id));
+    list.appendChild(div);
+  });
+  updateGlobalProg();
+}
+
+// ── RENDER TASKS ──────────────────────────────────────
+function renderTasks() {
+  const t = activeTopic(); if (!t) return;
+  // Header
+  const pct = topicPct(t);
+  document.getElementById('topicHeader').innerHTML = `
+    <div class="topic-header-icon">${t.emoji}</div>
+    <div class="topic-header-info">
+      <h2>${t.title}</h2>
+      <p>${t.description || ''}</p>
+    </div>
+    <div class="topic-header-stat">
+      <div class="stat-pct" style="color:${pct===100?'#10B981':t.color}">${pct}%</div>
+      <div class="stat-sub">${topicDone(t)}/${t.tasks.length} hoàn thành</div>
+    </div>
+  `;
+  // Update add btn colour
+  document.getElementById('btnShowAddTask').style.borderColor = t.color + '55';
+
+  // Task list
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+  if (!t.tasks.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>Chưa có task nào. Thêm task đầu tiên!</p></div>`;
+    return;
+  }
+  t.tasks.forEach(tk => {
+    const row = document.createElement('div');
+    row.className = 'task-row' + (tk.done ? ' done' : '');
+    if (editingTaskId === tk.id) {
+      row.innerHTML = `
+        <div style="flex:1">
+          <input class="inp" id="editTitle_${tk.id}" value="${escHtml(tk.title)}" style="margin-bottom:8px"/>
+          <input class="inp" id="editNote_${tk.id}" value="${escHtml(tk.note||'')}" placeholder="Ghi chú..." style="margin-bottom:10px"/>
+          <div class="btn-row">
+            <button class="btn-primary" style="background:${t.color}" onclick="saveEditTask(${t.id},${tk.id})">Lưu</button>
+            <button class="btn-sec" onclick="cancelEdit()">Huỷ</button>
+          </div>
+        </div>
+      `;
+    } else {
+      row.innerHTML = `
+        <div class="checkbox ${tk.done?'checked':''}" style="${tk.done?'background:'+t.color+';border-color:'+t.color:''}" onclick="toggleTask(${t.id},${tk.id})">
+          ${tk.done?'✓':''}
+        </div>
+        <div class="task-info">
+          <div class="task-name ${tk.done?'done':''}">${escHtml(tk.title)}</div>
+          ${tk.note ? `<div class="task-note">${escHtml(tk.note)}</div>` : ''}
+        </div>
+        <div class="task-right">
+          <div class="time-badge">⏱ ${tk.duration}p</div>
+          <div class="task-actions">
+            <button class="act-btn act-edit" onclick="startEdit(${tk.id})">✏️</button>
+            <button class="act-btn act-del" onclick="deleteTask(${t.id},${tk.id})">🗑</button>
+          </div>
+        </div>
+      `;
+    }
+    list.appendChild(row);
+  });
+  updateGlobalProg();
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── TOPIC CRUD ────────────────────────────────────────
+function toggleAddTopic(show) {
+  document.getElementById('addTopicForm').style.display = show ? '' : 'none';
+  document.getElementById('btnShowAddTopic').style.display = show ? 'none' : '';
+}
+
+function addTopic() {
+  const title = document.getElementById('newTopicTitle').value.trim();
+  if (!title) { document.getElementById('newTopicTitle').focus(); return; }
+  const desc = document.getElementById('newTopicDesc').value.trim();
+  const t = { id: uid(), title, description: desc, emoji: selectedEmoji, color: selectedColor, tasks: [] };
+  data.push(t); save();
+  document.getElementById('newTopicTitle').value = '';
+  document.getElementById('newTopicDesc').value = '';
+  toggleAddTopic(false);
+  activeTopicId = t.id;
+  renderTopics();
+  openTopic(t.id);
+}
+
+function deleteTopic(id) {
+  if (!confirm('Xoá chủ đề này?')) return;
+  data = data.filter(t => t.id !== id);
+  if (activeTopicId === id) activeTopicId = data[0]?.id ?? null;
+  save();
+  const tab = document.getElementById('tabTasks');
+  tab.style.display = 'none';
+  switchView('topics');
+}
+
+// ── TASK CRUD ─────────────────────────────────────────
+function toggleAddTask(show) {
+  document.getElementById('addTaskForm').style.display = show ? '' : 'none';
+  document.getElementById('btnShowAddTask').style.display = show ? 'none' : '';
+  if (show) buildDurationChips();
+}
+
+function buildDurationChips() {
+  const t = activeTopic();
+  const wrap = document.getElementById('durationChips');
+  wrap.innerHTML = '';
+  [15,30,45,60].forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'dur-chip' + (selectedDuration === d ? ' sel' : '');
+    btn.style.background = selectedDuration === d ? t.color : '';
+    btn.style.borderColor = selectedDuration === d ? t.color : '';
+    btn.textContent = d + ' phút';
+    btn.onclick = () => { selectedDuration = d; buildDurationChips(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function addTask() {
+  const title = document.getElementById('newTaskTitle').value.trim();
+  if (!title) { document.getElementById('newTaskTitle').focus(); return; }
+  const note = document.getElementById('newTaskNote').value.trim();
+  const task = { id: uid(), title, note, duration: selectedDuration, done: false };
+  data = data.map(t => t.id === activeTopicId ? { ...t, tasks: [...t.tasks, task] } : t);
+  save();
+  document.getElementById('newTaskTitle').value = '';
+  document.getElementById('newTaskNote').value = '';
+  toggleAddTask(false);
+  renderTasks();
+}
+
+function toggleTask(topicId, taskId) {
+  data = data.map(t => t.id === topicId
+    ? { ...t, tasks: t.tasks.map(tk => tk.id === taskId ? { ...tk, done: !tk.done } : tk) }
+    : t);
+  save(); renderTasks();
+}
+
+function deleteTask(topicId, taskId) {
+  data = data.map(t => t.id === topicId ? { ...t, tasks: t.tasks.filter(tk => tk.id !== taskId) } : t);
+  save(); renderTasks();
+}
+
+function startEdit(taskId) { editingTaskId = taskId; renderTasks(); }
+function cancelEdit() { editingTaskId = null; renderTasks(); }
+
+function saveEditTask(topicId, taskId) {
+  const title = document.getElementById('editTitle_'+taskId)?.value.trim();
+  const note  = document.getElementById('editNote_'+taskId)?.value.trim();
+  if (!title) return;
+  data = data.map(t => t.id === topicId
+    ? { ...t, tasks: t.tasks.map(tk => tk.id === taskId ? { ...tk, title, note } : tk) }
+    : t);
+  editingTaskId = null; save(); renderTasks();
+}
+
+// ── INIT EMOJI / COLOR PICKERS ────────────────────────
+function buildEmojiPicker() {
+  const wrap = document.getElementById('emojiRow');
+  EMOJIS.forEach(e => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-chip' + (e === selectedEmoji ? ' sel' : '');
+    btn.textContent = e;
+    btn.onclick = () => {
+      selectedEmoji = e;
+      wrap.querySelectorAll('.emoji-chip').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+function buildColorPicker() {
+  const wrap = document.getElementById('colorRow');
+  COLORS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'color-dot' + (c === selectedColor ? ' sel' : '');
+    btn.style.background = c;
+    btn.onclick = () => {
+      selectedColor = c;
+      wrap.querySelectorAll('.color-dot').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+// ── BOOT ──────────────────────────────────────────────
+buildEmojiPicker();
+buildColorPicker();
+renderTopics();
+</script>
+</body>
+</html>
